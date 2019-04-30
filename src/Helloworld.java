@@ -1,5 +1,5 @@
 public class Helloworld {
     public static void main( String args[]){
-        System.out.println("long time no program");
+        System.out.println("WE NEED TO START RIGHT NOW");
     }
 }

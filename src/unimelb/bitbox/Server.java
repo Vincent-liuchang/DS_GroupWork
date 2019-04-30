@@ -86,11 +86,28 @@ public class Server extends Thread{
                         out.write("Server Ack " + clientMsg + "\n");
                         out.flush();
                         System.out.println("Response sent");
+                        SendtoClient(clientMsg);
                     }
             }
             
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void SendtoClient(String message){
+		for(Socket s: Socketlist){
+			try {
+				BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
+				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
+				out.write(message);
+				out.flush();
+				out.close();
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 

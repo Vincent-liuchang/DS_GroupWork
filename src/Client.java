@@ -17,7 +17,7 @@ public class Client implements Runnable {
 
     public void run(){
         try{
-            Socket socket = new Socket("localhost", port);
+            Socket socket = new Socket("10.98.200.159", port);
             System.out.println("client socket created");
             DataInputStream datain = new DataInputStream(socket.getInputStream());
             DataOutputStream dataout = new DataOutputStream(socket.getOutputStream());
@@ -48,12 +48,7 @@ public class Client implements Runnable {
         }
     }
 
-    public void start() {
-        System.out.println("Starting client " + peername);
-        if (t1 == null) {
-            t1 = new Thread(this, peername);
-            t1.start();
-        }
-    }
+
+
 
 }

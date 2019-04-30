@@ -27,34 +27,28 @@ public class Server implements Runnable{
     public void run() {
         ServerSocketFactory factory = ServerSocketFactory.getDefault();
         try(ServerSocket server = factory.createServerSocket(port)){
+            Thread.sleep(50);
             System.out.println("Waiting for client connection..");
 
             // Wait for connections.
             while(true){
                 Socket client = server.accept();
                 counter++;
-                System.out.println("Client "+counter+": Applying for connection!");
+                System.out.println("Client "+counter+": Applying for connection!"+ client.getInetAddress());
                 SocketList.add(client);
 
                 // Start a new thread for a connection
                 Thread t = new Thread(() -> serveClient(client));
                 t.start();
-
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
 
-    }
-
-    public void start() {
-        System.out.println("Starting server" + peername);
-        if (t1 == null) {
-            t1 = new Thread(this, peername);
-            t1.start();
-        }
     }
 
     private void serveClient(Socket client){

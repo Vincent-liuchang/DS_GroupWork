@@ -51,10 +51,13 @@ public class Client extends Thread {
 	                }
 		    
 		} catch (ConnectException e) {
-			// solve 1st client doesn't find a server
-			// add a timer later
-			System.out.println("no por found, finding new ...."+ e.toString());
-			run();
+			try {
+				Thread.sleep(5*1000);
+				System.out.println("no por found, finding new ...."+ e.toString());
+				run();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 		} catch (IOException e) {
 			
 		}

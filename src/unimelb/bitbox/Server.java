@@ -86,7 +86,6 @@ public class Server extends Thread{
                         out.write("Server Ack " + clientMsg + "\n");
                         out.flush();
                         System.out.println("Response sent");
-                        SendtoClient(clientMsg);
                     }
             }
             
@@ -102,8 +101,6 @@ public class Server extends Thread{
 				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
 				out.write(message);
 				out.flush();
-				out.close();
-				in.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

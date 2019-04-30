@@ -20,9 +20,10 @@ public class ServerMain implements FileSystemObserver {
 		
 //		Thread server = new Server(Integer.parseInt(Configuration.getConfigurationValue("port")));
 		
-		Thread client = new Client(Configuration.getConfigurationValue("peers"),4003);
+//		Thread client = new Client(Configuration.getConfigurationValue("peers"),4003);
+		Thread client = new Client("10.12.86.202",4000);
 		client.start();
-		Thread server = new Server(4004);
+		Thread server = new Server(4000);
 		server.start();
 	}
 	

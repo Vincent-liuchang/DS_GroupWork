@@ -39,10 +39,7 @@ public class Server extends Thread{
 				Socket client = server.accept();
 				counter++;
 				Socketlist.add(client);
-				Configuration.setConfigurationValue("peers",client.getInetAddress().toString());
-				//modified but not write to file
-				
-				
+
 				System.out.println("Client "+counter+": Applying for connection!");
 				
 				
@@ -94,7 +91,7 @@ public class Server extends Thread{
 		}
 	}
 
-	public void SendtoClient(String message){
+	public void sendtoClient(String message){
 		for(Socket s: Socketlist){
 			try {
 				BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));

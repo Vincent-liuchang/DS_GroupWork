@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.sql.ConnectionEvent;
@@ -18,16 +19,18 @@ public class Client extends Thread {
 	// IP and port
 	private String ip;
 	private int port;
+	private ArrayList<String> iplist = new ArrayList<String>();
+	private Socket socket;
 	
-	public Client(String ip, int port){
-		this.ip = ip;
+	public Client(ArrayList<String> iplist, int port){
+		this.iplist = iplist;
+		this.ip = iplist.get(0);
 		this.port = port;
 	}
 	
 	public void run() {
 		try(Socket socket = new Socket(ip, port);){
-			 
-
+				this.socket = socket;
 	            // Get the input/output streams for reading/writing data from/to the socket
 	            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 	            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
@@ -52,14 +55,30 @@ public class Client extends Thread {
 		    
 		} catch (ConnectException e) {
 			try {
+				if(iplist.indexOf(ip)!= iplist.size())
+					ip = iplist.get(iplist.indexOf(ip)+1);
+				else
+					ip = iplist.get(0);
 				Thread.sleep(5*1000);
-				System.out.println("no por found, finding new ...."+ e.toString());
+				System.out.println("this peer not online, finding next ...."+ e.toString());
 				run();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
 		} catch (IOException e) {
 			
+		}
+
+	}
+
+	public void sendtoServer(String message){
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+			out.write(message);
+			out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 	}

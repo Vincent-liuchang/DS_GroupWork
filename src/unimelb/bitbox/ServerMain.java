@@ -12,19 +12,14 @@ import unimelb.bitbox.util.FileSystemManager.FileSystemEvent;
 public class ServerMain implements FileSystemObserver {
 	private static Logger log = Logger.getLogger(ServerMain.class.getName());
 	protected FileSystemManager fileSystemManager;
-	
+	private Peer peer ;
 	
 	
 	public ServerMain() throws NumberFormatException, IOException, NoSuchAlgorithmException {
 		fileSystemManager=new FileSystemManager(Configuration.getConfigurationValue("path"),this);
-		
-//		Thread server = new Server(Integer.parseInt(Configuration.getConfigurationValue("port")));
-		
-//		Thread client = new Client(Configuration.getConfigurationValue("peers"),4003);
-		Thread client = new Client("10.12.86.202",4000);
-		client.start();
-		Thread server = new Server(4000);
-		server.start();
+
+		peer = new Peer();
+
 	}
 	
 	

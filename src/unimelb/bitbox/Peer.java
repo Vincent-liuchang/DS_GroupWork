@@ -2,6 +2,8 @@ package unimelb.bitbox;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import unimelb.bitbox.util.Configuration;
@@ -17,5 +19,26 @@ public class Peer
         Configuration.getConfiguration();
         
         new ServerMain();
+    }
+
+    private ArrayList<String> peers = new ArrayList<String>();
+    private int port;
+    private Client client;
+    private Server server;
+
+    public Peer(){
+        String [] peers = Configuration.getConfigurationValue("peers").split(" ");
+        this.peers = new ArrayList<String>(Arrays.asList(peers));
+        this.port = Integer.parseInt(Configuration.getConfigurationValue("port"));
+
+        this.client = new Client(this.peers,port);
+        client.start();
+        this.server = new Server(port);
+        server.start();
+    }
+
+    public void sentToOtherPeers(String message){
+        client.sendtoServer(message);
+        server.sendtoClient(message);
     }
 }

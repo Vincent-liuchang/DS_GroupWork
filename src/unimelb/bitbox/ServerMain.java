@@ -13,7 +13,7 @@ import unimelb.bitbox.util.FileSystemManager.FileSystemEvent;
 public class ServerMain implements FileSystemObserver {
 	private static Logger log = Logger.getLogger(ServerMain.class.getName());
 	protected static FileSystemManager fileSystemManager;
-	private Peer peer ;
+	private Peer peer = new Peer() ;
 
 
 	
@@ -21,7 +21,7 @@ public class ServerMain implements FileSystemObserver {
 	public ServerMain() throws NumberFormatException, IOException, NoSuchAlgorithmException {
 		fileSystemManager = new FileSystemManager(Configuration.getConfigurationValue("path"),this);
 
-		Peer.start();
+		peer.start();
 
 	}
 	
@@ -30,7 +30,6 @@ public class ServerMain implements FileSystemObserver {
 	public void processFileSystemEvent(FileSystemEvent fileSystemEvent) {
 		Document file_descriptor = new Document();
 
-		// TODO: process events
 		if(fileSystemEvent.event.equals(FileSystemManager.EVENT.FILE_CREATE)){
 			Document file_create = new Document();
 			file_create.append("command", "FILE_CREATE_REQUEST");

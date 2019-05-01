@@ -28,16 +28,17 @@ public class Client extends Thread {
 	private Socket socket;
 	
 	public Client(ArrayList<String> iplist, int port){
-		Collections.shuffle(iplist);
+
 		this.iplist = iplist;
 		this.ip = iplist.get(0);
 		this.port = port;
 	}
 	
 	public void run() {
-		try(Socket socket = new Socket(ip, port);){
+		try{
+			Socket socket = new Socket(ip, port);
 				this.socket = socket;
-	            // Get the input/output streams for reading/writing data from/to the socket
+				//Get the input/output streams for reading/writing data from/to the socket
 	            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 	            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
 
@@ -45,33 +46,34 @@ public class Client extends Thread {
 	            handshake.append("command","HANDSHAKE_REQUEST");
 				HostPort hostport = new HostPort(socket.getInetAddress().toString(),port);
 				handshake.append("hostPort",hostport.toDoc());
-				out.write(handshake.toJson());
+				out.write(handshake.toJson()+"\n");
 				out.flush();
 
 	            //While the user input differs from "exit"
 	            while (true) {
 	                // Receive the reply from the server by reading from the socket input stream
 	                String received = in.readLine(); // This method blocks until there
-	                out.write(Peer.operation(Document.parse(received)));
+	                out.write(Peer.operation(Document.parse(received))+"\n");
 	                out.flush();
 	                }
 		    
 		} catch (ConnectException e) {
 			try {
-				if(iplist.indexOf(ip)!= iplist.size()-1)
-					ip = iplist.get(iplist.indexOf(ip)+1);
+				if(iplist.indexOf(ip)!= iplist.size()-1) {
+					ip = iplist.get(iplist.indexOf(ip) + 1);
+					System.out.println("this peer not online, finding next ...."+ e.toString());
+				}
 				else
 					ip = iplist.get(0);
 				Thread.sleep(5*1000);
-				System.out.println("this peer not online, finding next ...."+ e.toString());
+
 				run();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-		} catch (IOException e) {
-			
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+		}
+		catch (IOException e) {
+
 		}
 
 	}
@@ -80,7 +82,7 @@ public class Client extends Thread {
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
-			out.write(message);
+			out.write(message+"\n");
 			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();

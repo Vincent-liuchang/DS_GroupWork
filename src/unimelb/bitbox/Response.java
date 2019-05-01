@@ -25,7 +25,7 @@ public class Response {
     public String createMessage(){
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDesriptor",fd);
+        reply.append("fileDescriptor",fd);
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);

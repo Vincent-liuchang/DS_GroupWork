@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import unimelb.bitbox.util.Configuration;
+import unimelb.bitbox.util.Document;
+import unimelb.bitbox.util.FileSystemManager;
 
 public class Peer 
 {
@@ -19,26 +21,44 @@ public class Peer
         Configuration.getConfiguration();
         
         new ServerMain();
+
     }
 
-    private ArrayList<String> peers = new ArrayList<String>();
-    private int port;
-    private Client client;
-    private Server server;
+    private static int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));
+    private static String [] peerstring = Configuration.getConfigurationValue("peers").split(" ");
+    private static ArrayList<String> peers = new ArrayList<String>(Arrays.asList(peerstring));
+    private static Client client = new Client(peers,port);
+    private static Server server = new Server(port);;
 
-    public Peer(){
-        String [] peers = Configuration.getConfigurationValue("peers").split(" ");
-        this.peers = new ArrayList<String>(Arrays.asList(peers));
-        this.port = Integer.parseInt(Configuration.getConfigurationValue("port"));
-
-        this.client = new Client(this.peers,port);
+    public static void start(){
         client.start();
-        this.server = new Server(port);
         server.start();
     }
 
-    public void sentToOtherPeers(String message){
+    public static void sentToOtherPeers(String message){
         client.sendtoServer(message);
         server.sendtoClient(message);
     }
+    public static String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
+        Response r = new Response(received_document);
+
+        if(r.pathSafe(received_document)){
+            if(r.nameExist(received_document)){
+                String command = received_document.getString("command");
+                if(command.equals("FILE_CREATE_REQUEST")){
+                    r.message = "file loader ready";
+                    r.status = "true";
+                    return r.createMessage();
+//                    if(!r.judgeContent(received_document)){
+//                    }
+                }
+                else if(command.contains("FILE_DELETE_REUQEST")) {
+                    return null;
+                }
+            }
+
+        }
+            return null;
+    }
+
 }

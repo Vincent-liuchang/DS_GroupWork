@@ -3,21 +3,20 @@ package unimelb.bitbox;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-
 import javax.net.ServerSocketFactory;
-
-import unimelb.bitbox.util.Configuration;
+import unimelb.bitbox.util.Document;
+import unimelb.bitbox.util.HostPort;
 
 public class Server extends Thread{
-	
+
+	private String ip;
 	// Declare the port number
 	private int port;
 	// Identifies the user number connected
@@ -32,6 +31,7 @@ public class Server extends Thread{
 	public void run(){
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
 		try(ServerSocket server = factory.createServerSocket(port)){
+			ip = server.getInetAddress().toString();
 			System.out.println("Waiting for client connection..");
 			
 			// Wait for connections.
@@ -60,17 +60,17 @@ public class Server extends Thread{
 			//Listen for incoming connections for ever
             while (true) {
              
-                System.out.println("Client1 conection number " + counter + " accepted:");
-                System.out.println("Remote Port: " + clientSocket.getPort());
-                System.out.println("Remote Hostname: " + clientSocket.getInetAddress().getHostName());
-                System.out.println("Local Port: " + clientSocket.getLocalPort());
-                System.out.println("Connection established");
-                
+//                System.out.println("Client1 conection number " + counter + " accepted:");
+//                System.out.println("Remote Port: " + clientSocket.getPort());
+//                System.out.println("Remote Hostname: " + clientSocket.getInetAddress().getHostName());
+//                System.out.println("Local Port: " + clientSocket.getLocalPort());
+//                System.out.println("Connection established");
+//
                 //Get the input/output streams for reading/writing data from/to the socket
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
-                out.write("Server Ack " + "connected" + "\n");
-                out.flush();
+//                out.write("Server Ack " + "connected" + "\n");
+//                out.flush();
 
                 //Read the message from the client and reply
                 //Notice that no other connection can be accepted and processed until the last line of
@@ -79,14 +79,41 @@ public class Server extends Thread{
                 String clientMsg = null;
                
                     while((clientMsg = in.readLine()) != null) {
-                        System.out.println("Message from client " + counter + ": " + clientMsg);
-                        out.write("Server Ack " + clientMsg + "\n");
-                        out.flush();
-                        System.out.println("Response sent");
+						Document receieved = Document.parse(clientMsg);
+						if(receieved.get("command").equals("HANDSHAKE_REUEST")){
+							if(Socketlist.size() <= 10) {
+								Document handshake = new Document();
+								handshake.append("command", "HANDSHAKE_RESPONSE");
+								HostPort hostport = new HostPort(ip, port);
+								handshake.append("hostPort", hostport.toDoc());
+								out.write(handshake.toJson());
+								out.flush();
+							}
+							else{
+								Socketlist.remove(10);
+								Document handshake = new Document();
+								handshake.append("command", "CONNECTION_REFUSED");
+								handshake.append("message", "connection limit reached");
+								ArrayList<Document> peers = new ArrayList<Document>();
+								for(Socket s:Socketlist){
+									HostPort hostport = new HostPort(s.getInetAddress().toString(),s.getPort());
+									peers.add(hostport.toDoc());
+								}
+								handshake.append("peers",peers);
+
+								out.write(handshake.toJson());
+								out.flush();
+							}
+						}
+
+						out.write(Peer.operation(receieved));
+						out.flush();
                     }
             }
             
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 	}

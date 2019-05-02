@@ -40,9 +40,22 @@ public class ServerMain implements FileSystemObserver {
 			file_create.append("pathName",fileSystemEvent.pathName);
 			String message = file_create.toJson();
 			peer.sentToOtherPeers(message);
+		}else if(fileSystemEvent.event.equals(FileSystemManager.EVENT.FILE_DELETE)){
+			Document file_create = new Document();
+			file_create.append("command", "FILE_DELETE_REQUEST");
+			file_descriptor.append("md5",fileSystemEvent.fileDescriptor.md5);
+			file_descriptor.append("lastModified",fileSystemEvent.fileDescriptor.lastModified);
+			file_descriptor.append("fileSize",fileSystemEvent.fileDescriptor.fileSize);
+			file_create.append("fileDescriptor",file_descriptor.toJson());
+			file_create.append("pathName",fileSystemEvent.pathName);
+			String message = file_create.toJson();
+			peer.sentToOtherPeers(message);
 		}
-
 	}
+
+
+
+
 	
 }
 	

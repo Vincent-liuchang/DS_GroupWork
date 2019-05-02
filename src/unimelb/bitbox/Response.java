@@ -24,7 +24,9 @@ public class Response {
 
     public Response(Document received_document) {
         this.received_document = received_document;
-        this.fd = Document.parse(received_document.getString("fileDescriptor"));
+        if (received_document.toJson().contains("fileDescriptor")){
+            this.fd = Document.parse(received_document.getString("fileDescriptor"));
+        }
         this.command = received_document.getString("command");
         reply = new Document();
 

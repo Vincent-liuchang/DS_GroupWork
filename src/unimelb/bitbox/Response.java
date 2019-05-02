@@ -4,7 +4,6 @@ import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.FileSystemManager;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 
 public class Response {
@@ -44,7 +43,7 @@ public class Response {
     // FILE_BYTES_REQUEST
     public String fileByteRequest(){
 
-        command = command.replace("REQUEST","RESPONSE");
+        command = "FILE_BYTES_REQUEST";
         reply.append("command", command);
         reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));

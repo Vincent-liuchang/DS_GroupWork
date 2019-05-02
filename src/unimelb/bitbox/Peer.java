@@ -107,7 +107,34 @@ public class Peer
 
                     }
                     return r.fileDeleteResponse();
-                }
+                }else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
+                    if(r.pathSafe(received_document) &&
+                            !ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))) {
+
+                        ServerMain.fileSystemManager.makeDirectory(received_document.getString("pathName"));
+                        r.message = "directory create succeed";
+                        r.status = true;
+                    }else{
+                        r.message = "directory create failed";
+                        r.status = false;
+                    }
+                    return r.directoryCreateResponse();
+
+                }else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
+
+                    if(r.pathSafe(received_document) &&
+                            ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))
+                            ) {
+
+                        ServerMain.fileSystemManager.deleteDirectory(received_document.getString("pathName"));
+                        r.message = "directory delete succeed";
+                        r.status = true;
+                    }else{
+                        r.message = "directory delete failed";
+                        r.status = false;
+                    }
+                    return r.directoryCreateResponse();
+                        }
 
 
 

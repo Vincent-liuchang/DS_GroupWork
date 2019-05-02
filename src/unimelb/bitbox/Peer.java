@@ -56,6 +56,7 @@ public class Peer
 
                         r.message = "file loader ready";
                         r.status = true;
+                        
 
                         r.position = 0;
                         r.length = r.fd.getLong("fileSize");

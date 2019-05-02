@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import javax.net.ServerSocketFactory;
 import unimelb.bitbox.util.Document;
@@ -78,10 +79,13 @@ public class Server extends Thread{
                     while((clientMsg = in.readLine()) != "exit") {
 
 						if(clientMsg.contains("*")){
-							String firstStr = clientMsg.split("/*")[0];
-							String secondtStr = clientMsg.split("/*")[1];
+							int index = clientMsg.indexOf("*");
+							String firstStr = clientMsg.substring(0,index);
+							String secondtStr = clientMsg.substring(index+1);
 							Document received1 = Document.parse(firstStr);
 							Document received2 = Document.parse(secondtStr);
+							System.out.println(firstStr);
+							System.out.println(secondtStr);
 
 							out.write(Peer.operation(received1)+"\n");
 							out.write(Peer.operation(received2)+"\n");
@@ -89,7 +93,7 @@ public class Server extends Thread{
 
 						}else{
 							Document received = Document.parse(clientMsg);
-							if(!clientMsg.equals(clientMsg.contains("_"))) {
+							if(!clientMsg.contains("_")) {
 								System.out.println(clientMsg);
 							}
 							else {
@@ -129,7 +133,7 @@ public class Server extends Thread{
                     }
             }
             
-		} catch (IOException e) {
+		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 	}
@@ -144,7 +148,6 @@ public class Server extends Thread{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 	}
 

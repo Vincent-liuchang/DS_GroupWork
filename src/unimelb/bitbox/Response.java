@@ -4,6 +4,7 @@ import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.FileSystemManager;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 
 public class Response {
@@ -26,6 +27,7 @@ public class Response {
         this.received_document = received_document;
         this.fd = Document.parse(received_document.getString("fileDescriptor"));
         this.command = received_document.getString("command");
+        reply = new Document();
 
     }
 
@@ -168,7 +170,7 @@ public class Response {
     }
 
     public boolean nameExist(Document received_document){
-        return ! fm.fileNameExists(received_document.getString("pathName"));
+        return fm.fileNameExists(received_document.getString("pathName"));
     }
 
     public boolean judgeContent(Document received_document) throws IOException, NoSuchAlgorithmException {

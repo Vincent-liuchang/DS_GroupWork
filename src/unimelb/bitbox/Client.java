@@ -54,9 +54,23 @@ public class Client extends Thread {
 	                // Receive the reply from the server by reading from the socket input stream
 	                String received = in.readLine(); // This method blocks until there
 					received = received+ "\n";
-					System.out.print(received + " returned from server");
+					System.out.print(received + " returned from server\n");
 
-					if(received.contains("_")){
+					if(received.contains("*")){
+						int index = received.indexOf("*");
+						String firstStr = received.substring(0,index);
+						String secondtStr = received.substring(index+1);
+						Document received1 = Document.parse(firstStr);
+						Document received2 = Document.parse(secondtStr);
+						System.out.println(firstStr);
+						System.out.println(secondtStr);
+
+						out.write(Peer.operation(received1)+"\n");
+						out.write(Peer.operation(received2)+"\n");
+						out.flush();
+
+					}
+					else if(received.contains("_")){
 						Document received_message = Document.parse(received);
 						out.write(Peer.operation(received_message)+"\n");
 						out.flush();
@@ -81,7 +95,7 @@ public class Client extends Thread {
 				e1.printStackTrace();
 			}
 		}
-		catch (IOException e) {
+		catch (IOException | NoSuchAlgorithmException e) {
 
 		}
 

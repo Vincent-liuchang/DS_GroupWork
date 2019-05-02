@@ -2,6 +2,7 @@ package unimelb.bitbox;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,8 +45,7 @@ public class Peer
 
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){       // receive command = handshake_response, from client
             return "three way handshake complete";
-        }
-        else {
+        }else {
             Response r = new Response(received_document);
             String command = received_document.getString("command");
 
@@ -61,6 +61,7 @@ public class Peer
                         r.length = r.fd.getLong("fileSize");
 
                         return r.createMessage() + "*" + r.fileByteRequest();
+//                        return r.fileByteRequest();
 
                     }else{
                         r.message = "file loader not ready";
@@ -69,12 +70,21 @@ public class Peer
                         return r.createMessage();
                     }
                 }else if(command.equals("FILE_BYTES_REQUEST")) {
-                    ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(received_document.getString("md5"),
+                    System.out.println("get in if function");
+
+                    ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(
+                            received_document.getString("md5"),
                             received_document.getLong("position"),
                             received_document.getLong("length"));
-                    System.out.println(byteBuffer.toString());
 
-                    r.content = "";     // empty content for now
+                    System.out.println("break point 1");
+
+                    String bf = new String(byteBuffer.array());
+
+//                    System.out.println(byteBuffer.toString());
+                    System.out.println("break point 2");
+
+                    r.content = bf;     // empty content for now
                     r.message = "successfully read";
                     r.status = true;
                     return r.fileByteResponse();
@@ -181,7 +191,7 @@ public class Peer
 
                 }else if(command.equals("FILE_BYTES_RESPONSE")){
 //                        some commands
-                    return "task completed";
+                    return "file bytes response";
 
                 }else if(command.equals("FILE_DELETE_RESPONSE")){
 

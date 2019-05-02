@@ -25,7 +25,9 @@ public class Response {
 
     public Response(Document received_document) {
         this.received_document = received_document;
-        this.fd = Document.parse(received_document.getString("fileDescriptor"));
+        if (received_document.toJson().contains("fileDescriptor")){
+            this.fd = Document.parse(received_document.getString("fileDescriptor"));
+        }
         this.command = received_document.getString("command");
         reply = new Document();
 
@@ -44,7 +46,7 @@ public class Response {
     // FILE_BYTES_REQUEST
     public String fileByteRequest(){
 
-        command = command.replace("REQUEST","RESPONSE");
+        command = "FILE_BYTES_REQUEST";
         reply.append("command", command);
         reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));

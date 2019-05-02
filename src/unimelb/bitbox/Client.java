@@ -54,9 +54,10 @@ public class Client extends Thread {
 	                // Receive the reply from the server by reading from the socket input stream
 	                String received = in.readLine(); // This method blocks until there
 					received = received+ "\n";
-					System.out.print(received + " returned from server\n");
+					System.out.print("clients received from server: " + received +"\n");
 
 					if(received.contains("*")){
+
 						int index = received.indexOf("*");
 						String firstStr = received.substring(0,index);
 						String secondtStr = received.substring(index+1);
@@ -69,9 +70,11 @@ public class Client extends Thread {
 						out.write(Peer.operation(received2)+"\n");
 						out.flush();
 
+
 					}
 					else if(received.contains("_")){
 						Document received_message = Document.parse(received);
+						System.out.println("CLIENT: " + Peer.operation(received_message) + "\n");
 						out.write(Peer.operation(received_message)+"\n");
 						out.flush();
 					}else{

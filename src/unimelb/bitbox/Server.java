@@ -123,7 +123,7 @@ public class Server extends Thread{
 										out.flush();
 									}
 								} else {
-
+									System.out.println("SERVER: " + Peer.operation((received))+ "\n");
 									out.write(Peer.operation(received)+"\n");
 									out.flush();
 								}

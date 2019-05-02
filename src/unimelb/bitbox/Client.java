@@ -53,9 +53,18 @@ public class Client extends Thread {
 	            while (true) {
 	                // Receive the reply from the server by reading from the socket input stream
 	                String received = in.readLine(); // This method blocks until there
-	                out.write(Peer.operation(Document.parse(received))+"\n");
-	                out.flush();
-	                }
+					received = received+ "\n";
+					System.out.print(received + " returned from server");
+
+					if(received.contains("_")){
+						Document received_message = Document.parse(received);
+						out.write(Peer.operation(received_message));
+						out.flush();
+					}else{
+						out.write(received);
+						out.flush();
+					}
+	            }
 		    
 		} catch (ConnectException e) {
 			try {

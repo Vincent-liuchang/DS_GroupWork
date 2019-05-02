@@ -11,10 +11,14 @@ public class Response {
     private FileSystemManager fm = ServerMain.fileSystemManager;
     private Document reply;
     private Document received_document;
-    private Document fd = Document.parse(received_document.get("fileDescriptor").toString());
+    protected Document fd = Document.parse(received_document.get("fileDescriptor").toString());
     private String command = received_document.getString("command");
     protected String message;
-    protected String status;
+    protected boolean status;
+    protected int position;
+    protected int length;
+    protected String content;
+
 
 
 
@@ -35,6 +39,125 @@ public class Response {
         return reply.toJson();
     }
 
+    // FILE_BYTES_REQUEST
+    public String fileByteRequest(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("fileDescriptor",fd);
+        reply.append("pathName",received_document.getString("pathName"));
+        reply.append("position", position);
+        reply.append("length", length);
+        return reply.toJson();
+    }
+
+    // FILE_BYTES_RESPONSE
+    public String fileByteResponse(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("fileDescriptor",fd);
+        reply.append("pathName",received_document.getString("pathName"));
+        reply.append("position", position);
+        reply.append("length", length);
+        reply.append("content", content);
+        reply.append("message",message);
+        reply.append("status",status);
+
+        return reply.toJson();
+    }
+
+    // FILE_DELETE_REQUEST
+    public String fileDeleteRequest(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("fileDescriptor",fd);
+        reply.append("pathName",received_document.getString("pathName"));
+
+        return reply.toJson();
+    }
+
+    // FILE_DELETE_RESPONSE
+    public String fileDeleteResponse(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("fileDescriptor",fd);
+        reply.append("pathName",received_document.getString("pathName"));
+        reply.append("message",message);
+        reply.append("status",status);
+
+        return reply.toJson();
+    }
+
+    // FILE_MODIFY_REQUEST
+    public String fileModifyRequest(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("fileDescriptor",fd);
+        reply.append("pathName",received_document.getString("pathName"));
+
+        return reply.toJson();
+    }
+
+    // FILE_MODIFY_RESPONSE
+    public String fileModifyResponse(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("fileDescriptor",fd);
+        reply.append("pathName",received_document.getString("pathName"));
+        reply.append("message",message);
+        reply.append("status",status);
+
+        return reply.toJson();
+    }
+
+    // DIRECTORY_CREATE_REQUEST
+    public String directoryCreateRequest(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("pathName",received_document.getString("pathName"));
+
+        return reply.toJson();
+    }
+
+    // DIRECTORY_CREATE_RESPONSE
+    public String directoryCreateResponse(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("pathName",received_document.getString("pathName"));
+        reply.append("message",message);
+        reply.append("status",status);
+
+        return reply.toJson();
+    }
+
+    // DIRECTORY_DELETE_REQUEST
+    public String directoryDeleteRequest(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("pathName",received_document.getString("pathName"));
+
+        return reply.toJson();
+    }
+
+    // DIRECTORY_DELETE_RESPONSE
+    public String directoryDeleteResponse(){
+
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("pathName",received_document.getString("pathName"));
+        reply.append("message",message);
+        reply.append("status",status);
+
+        return reply.toJson();
+    }
 
     public String getResponceMessage(){
         return reply.toJson();
@@ -52,5 +175,7 @@ public class Response {
         fm.createFileLoader(received_document.getString("pathName"),fd.getString("md5"),Long.parseLong(fd.getString("fileSize")),Long.parseLong(fd.getString("lastModified")));
         return fm.checkShortcut(received_document.getString("pathName"));
     }
+
+
 
 }

@@ -76,41 +76,56 @@ public class Server extends Thread{
                 //one is processed unless...we use threads!
                 String clientMsg = null;
                     while((clientMsg = in.readLine()) != "exit") {
-						Document received = Document.parse(clientMsg);
-						if(clientMsg.equals("three_way_handshake_complete")) {
-							System.out.println(clientMsg);
-						}
-						else {
-							if (received.get("command").equals("HANDSHAKE_REQUEST")) {
-								System.out.println("HandShake Request Accepted by Server");
-								System.out.println("HandSacke Response Sent");
-								if (Socketlist.size() <= 10) {
-									Document handshake = new Document();
-									handshake.append("command", "HANDSHAKE_RESPONSE");
-									HostPort hostport = new HostPort(ip, port);
-									handshake.append("hostPort", hostport.toDoc());
-									out.write(handshake.toJson() + "\n");
-									out.flush();
-								} else {
-									Socketlist.remove(10);
-									Document handshake = new Document();
-									handshake.append("command", "CONNECTION_REFUSED");
-									handshake.append("message", "connection limit reached");
-									ArrayList<Document> peers = new ArrayList<Document>();
-									for (Socket s : Socketlist) {
-										HostPort hostport = new HostPort(s.getInetAddress().toString(), s.getPort());
-										peers.add(hostport.toDoc());
-									}
-									handshake.append("peers", peers);
 
-									out.write(handshake.toJson()+"\n");
+						if(clientMsg.contains("*")){
+							String firstStr = clientMsg.split("/*")[0];
+							String secondtStr = clientMsg.split("/*")[1];
+							Document received1 = Document.parse(firstStr);
+							Document received2 = Document.parse(secondtStr);
+
+							out.write(Peer.operation(received1)+"\n");
+							out.write(Peer.operation(received2)+"\n");
+							out.flush();
+
+						}else{
+							Document received = Document.parse(clientMsg);
+							if(clientMsg.equals("three way handshake complete")) {
+								System.out.println(clientMsg);
+							}
+							else {
+								if (received.get("command").equals("HANDSHAKE_REQUEST")) {
+									System.out.println("HandShake Request Accepted by Server");
+									System.out.println("HandSacke Response Sent");
+									if (Socketlist.size() <= 10) {
+										Document handshake = new Document();
+										handshake.append("command", "HANDSHAKE_RESPONSE");
+										HostPort hostport = new HostPort(ip, port);
+										handshake.append("hostPort", hostport.toDoc());
+										out.write(handshake.toJson() + "\n");
+										out.flush();
+									} else {
+										Socketlist.remove(10);
+										Document handshake = new Document();
+										handshake.append("command", "CONNECTION_REFUSED");
+										handshake.append("message", "connection limit reached");
+										ArrayList<Document> peers = new ArrayList<Document>();
+										for (Socket s : Socketlist) {
+											HostPort hostport = new HostPort(s.getInetAddress().toString(), s.getPort());
+											peers.add(hostport.toDoc());
+										}
+										handshake.append("peers", peers);
+
+										out.write(handshake.toJson()+"\n");
+										out.flush();
+									}
+								} else {
+
+									out.write(Peer.operation(received)+"\n");
 									out.flush();
 								}
-							} else {
-								out.write(Peer.operation(received)+"\n");
-								out.flush();
 							}
 						}
+
                     }
             }
             

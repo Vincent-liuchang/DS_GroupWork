@@ -89,7 +89,26 @@ public class Peer
                     r.message = "successfully read";
                     r.status = true;
                     return r.fileByteResponse();
+
+                }else if (command.equals("FILE_DELETE_REQUEST")) {
+
+                    if(r.pathSafe(received_document) && r.nameExist(received_document)){
+
+                        ServerMain.fileSystemManager.deleteFile(
+                                received_document.getString("pathName"),
+                                r.fd.getLong("lastModified"),
+                                r.fd.getString("md5"));
+                        r.status = true;
+                        r.message = "file delete succeed";
+
+                    }else{
+                        r.status = false;
+                        r.message = "file delete failed";
+
+                    }
+                    return r.fileDeleteResponse();
                 }
+
 
 
 //                if (r.pathSafe(received_document)) {
@@ -186,15 +205,12 @@ public class Peer
             }else if(command.contains("RESPONSE")){
                 if(command.equals("FILE_CREATE_RESPONSE")){
 
-
-
                     return "file create response received";
-
 
                 }else if(command.equals("FILE_BYTES_RESPONSE")){
 //                        some commands
 
-                    if(createOrModify==true){
+                    if(createOrModify){
                         String content = received_document.getString("content");
                         ByteBuffer bf = ByteBuffer.wrap(content.getBytes());
 
@@ -209,15 +225,13 @@ public class Peer
                                 bf,
                                 received_document.getLong("position"));
 
-                        if(ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))==true){
+                        if(ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))){
                             return "file bytes response";
                         }else{
                             return null;
                         }
 
                     }
-
-
 
 
 

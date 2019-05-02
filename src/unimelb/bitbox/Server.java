@@ -89,7 +89,7 @@ public class Server extends Thread{
 
 						}else{
 							Document received = Document.parse(clientMsg);
-							if(clientMsg.equals("three way handshake complete")) {
+							if(!clientMsg.equals(clientMsg.contains("_"))) {
 								System.out.println(clientMsg);
 							}
 							else {

@@ -58,10 +58,10 @@ public class Client extends Thread {
 
 					if(received.contains("_")){
 						Document received_message = Document.parse(received);
-						out.write(Peer.operation(received_message));
+						out.write(Peer.operation(received_message)+"\n");
 						out.flush();
 					}else{
-						out.write(received);
+						out.write(received+"\n");
 						out.flush();
 					}
 	            }

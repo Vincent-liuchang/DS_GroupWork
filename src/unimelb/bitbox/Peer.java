@@ -59,7 +59,7 @@ public class Peer
                             r.status = true;
 
                             r.position = 0;
-                            r.length = r.fd.getInteger("fileSize");
+                            r.length = r.fd.getLong("fileSize");
 
                             return r.createMessage() + "*" + r.fileByteRequest();
 

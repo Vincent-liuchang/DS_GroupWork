@@ -11,12 +11,12 @@ public class Response {
     private FileSystemManager fm = ServerMain.fileSystemManager;
     private Document reply;
     private Document received_document;
-    protected Document fd = Document.parse(received_document.get("fileDescriptor").toString());
-    private String command = received_document.getString("command");
+    protected Document fd;
+    private String command;
     protected String message;
     protected boolean status;
     protected int position;
-    protected int length;
+    protected long length;
     protected String content;
 
 
@@ -24,18 +24,18 @@ public class Response {
 
     public Response(Document received_document) {
         this.received_document = received_document;
-
+        this.fd = Document.parse(received_document.getString("fileDescriptor"));
+        this.command = received_document.getString("command");
 
     }
 
     public String createMessage(){
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);
-
         return reply.toJson();
     }
 
@@ -44,7 +44,7 @@ public class Response {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("position", position);
         reply.append("length", length);
@@ -56,7 +56,7 @@ public class Response {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("position", position);
         reply.append("length", length);
@@ -72,7 +72,7 @@ public class Response {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
 
         return reply.toJson();
@@ -83,7 +83,7 @@ public class Response {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);
@@ -96,7 +96,7 @@ public class Response {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
 
         return reply.toJson();
@@ -107,7 +107,7 @@ public class Response {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);

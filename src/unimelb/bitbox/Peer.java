@@ -16,6 +16,8 @@ import unimelb.bitbox.util.FileSystemManager;
 public class Peer 
 {
 	private static Logger log = Logger.getLogger(Peer.class.getName());
+	private static boolean createOrModify;    // true = create    false = modify
+
     public static void main( String[] args ) throws IOException, NumberFormatException, NoSuchAlgorithmException
     {
     	System.setProperty("java.util.logging.SimpleFormatter.format",
@@ -62,6 +64,8 @@ public class Peer
                         r.position = 0;
                         r.length = r.fd.getLong("fileSize");
 
+                        createOrModify = true;
+
                         return r.createMessage() + "*" + r.fileByteRequest();
 //                        return r.fileByteRequest();
 
@@ -72,6 +76,7 @@ public class Peer
                         return r.createMessage();
                     }
                 }else if(command.equals("FILE_BYTES_REQUEST")) {
+
 
                     ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(
                             r.fd.getString("md5"),
@@ -188,21 +193,33 @@ public class Peer
 
                 }else if(command.equals("FILE_BYTES_RESPONSE")){
 //                        some commands
-                    String content = received_document.getString("content");
-                    ByteBuffer bf = ByteBuffer.wrap(content.getBytes());
 
-                    ServerMain.fileSystemManager.createFileLoader(
-                            received_document.getString("pathName"),
-                            r.fd.getString("md5"),
-                            received_document.getLong("length"),
-                            r.fd.getLong("lastModified"));
+                    if(createOrModify==true){
+                        String content = received_document.getString("content");
+                        ByteBuffer bf = ByteBuffer.wrap(content.getBytes());
 
-                    ServerMain.fileSystemManager.writeFile(
-                            received_document.getString("pathName"),
-                            bf,
-                            received_document.getLong("position"));
+                        ServerMain.fileSystemManager.createFileLoader(
+                                received_document.getString("pathName"),
+                                r.fd.getString("md5"),
+                                received_document.getLong("length"),
+                                r.fd.getLong("lastModified"));
 
-                    return "file bytes response";
+                        ServerMain.fileSystemManager.writeFile(
+                                received_document.getString("pathName"),
+                                bf,
+                                received_document.getLong("position"));
+
+                        if(ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))==true){
+                            return "file bytes response";
+                        }else{
+                            return null;
+                        }
+
+                    }
+
+
+
+
 
                 }else if(command.equals("FILE_DELETE_RESPONSE")){
 

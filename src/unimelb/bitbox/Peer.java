@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.logging.Logger;
 
 import unimelb.bitbox.util.Configuration;
@@ -71,19 +72,19 @@ public class Peer
                         return r.createMessage();
                     }
                 }else if(command.equals("FILE_BYTES_REQUEST")) {
-                    System.out.println("get in if function");
 
                     ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(
                             received_document.getString("md5"),
                             received_document.getLong("position"),
                             received_document.getLong("length"));
 
+                    byte[] byteArray = new byte[byteBuffer.remaining()];
+
                     System.out.println("break point 1");
 
-                    String bf = new String(byteBuffer.array());
+                    String bf = Base64.getEncoder().encodeToString(byteArray);
 
-//                    System.out.println(byteBuffer.toString());
-                    System.out.println("break point 2");
+                    System.out.println(bf);
 
                     r.content = bf;     // empty content for now
                     r.message = "successfully read";

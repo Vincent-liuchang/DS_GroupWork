@@ -27,8 +27,8 @@ public class Peer
     private int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));
     private String [] peerstring = Configuration.getConfigurationValue("peers").split(" ");
     private ArrayList<String> peers = new ArrayList<String>(Arrays.asList(peerstring));
-    private Client client = new Client(peers,port);
-    private  Server server = new Server(port);;
+    private Client client = new Client(peers, 8112);
+    private Server server = new Server(port);;
 
     public  void start(){
         client.start();
@@ -41,12 +41,13 @@ public class Peer
     }
     public static String operation(Document received_document)  {
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
-            return "3time_handshake_complete";
+            return "three_way_handshake_complete";
         }
         else {
             Response r = new Response(received_document);
 
             if (r.pathSafe(received_document)) {
+
                 if (r.nameExist(received_document)) {
                     String command = received_document.getString("command");
                     if (command.equals("FILE_CREATE_REQUEST")) {
@@ -55,7 +56,7 @@ public class Peer
                         return r.createMessage();
 //                    if(!r.judgeContent(received_document)){
 //                    }
-                    } else if (command.contains("FILE_DELETE_REUQEST")) {
+                    } else if (command.equals("FILE_DELETE_REQUEST")) {
                         return "nothing";
                     }
                 }
@@ -65,5 +66,4 @@ public class Peer
             return "nothing";
         }
     }
-
 }

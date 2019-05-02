@@ -77,7 +77,7 @@ public class Server extends Thread{
                 String clientMsg = null;
                     while((clientMsg = in.readLine()) != "exit") {
 						Document received = Document.parse(clientMsg);
-						if(clientMsg.equals("3time_handshake_complete")) {
+						if(clientMsg.equals("three_way_handshake_complete")) {
 							System.out.println(clientMsg);
 						}
 						else {

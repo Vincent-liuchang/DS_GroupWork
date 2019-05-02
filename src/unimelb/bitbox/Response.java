@@ -16,6 +16,8 @@ public class Response {
     protected String message;
     protected String status;
 
+
+
     public Response(Document received_document) {
         this.received_document = received_document;
 

@@ -10,7 +10,7 @@ public class Response {
 
     private FileSystemManager fm = ServerMain.fileSystemManager;
     private Document reply;
-    private Document received_document;
+    protected Document received_document;
     protected Document fd;
     private String command;
     protected String message;

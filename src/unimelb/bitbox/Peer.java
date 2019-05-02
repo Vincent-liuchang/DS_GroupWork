@@ -1,6 +1,7 @@
 package unimelb.bitbox;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,7 @@ public class Peer
         client.sendtoServer(message);
         server.sendtoClient(message);
     }
-    public static String operation(Document received_document)  {
+    public static String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
 
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){       // receive command = handshake_response, from client
             return "three way handshake complete";
@@ -49,60 +50,133 @@ public class Peer
             String command = received_document.getString("command");
 
             if(command.contains("REQUEST")) {
+                if (command.equals("FILE_CREATE_REQUEST")) {
 
-                if (r.pathSafe(received_document)) {
+                    if(r.pathSafe(received_document) && !r.nameExist(received_document)){
 
-                    if (r.nameExist(received_document)) {
+                        r.message = "file loader ready";
+                        r.status = true;
 
-                        if (command.equals("FILE_CREATE_REQUEST")) {
-                            r.message = "file loader ready";
-                            r.status = true;
+                        r.position = 0;
+                        r.length = r.fd.getLong("fileSize");
 
-                            r.position = 0;
-                            r.length = r.fd.getLong("fileSize");
+                        return r.createMessage() + "*" + r.fileByteRequest();
 
-                            return r.createMessage() + "*" + r.fileByteRequest();
+                    }else{
+                        r.message = "file loader not ready";
+                        r.status = false;
 
-
-//                    if(!r.judgeContent(received_document)){
-//                    }
-
-                        } else if (command.equals("FILE_BYTES_REQUEST")) {
-                            r.content = "";     // empty content for now
-                            r.message = "successfully read";
-                            r.status = true;
-                            return r.fileByteResponse();
-
-                        } else if (command.equals("FILE_DELETE_REQUEST")) {
-                            r.message = "pathname does not exist";
-                            r.status = false;
-                            return r.fileDeleteResponse();
-
-                        } else if (command.equals("FILE_MODIFY_REQUEST")) {
-//                        some commands
-                            r.message = "pathname does not exist";
-                            r.status = false;
-                            return r.fileModifyResponse();
-
-                        } else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
-
-                            r.message = "directory create ok";
-                            r.status = false;
-                            return r.directoryCreateResponse();
-
-                        } else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
-
-                            r.message = "directory does not exist";
-                            r.status = false;
-                            return r.directoryDeleteResponse();
-                        }else{
-
-                            return "invalid request";
-                        }
+                        return r.createMessage();
                     }
+                }else if(command.equals("FILE_BYTES_REQUEST")) {
+                    ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(received_document.getString("md5"),
+                            received_document.getLong("position"),
+                            received_document.getLong("length"));
+                    System.out.println(byteBuffer.toString());
+
+                    r.content = "";     // empty content for now
+                    r.message = "successfully read";
+                    r.status = true;
+                    return r.fileByteResponse();
+
                 }
+
+
+//                if (r.pathSafe(received_document)) {
+//
+//                    if (r.nameExist(received_document)) {
+//
+//                        if (command.equals("FILE_CREATE_REQUEST")) {
+//                            r.message = "file loader ready";
+//                            r.status = true;
+//
+//                            r.position = 0;
+//                            r.length = r.fd.getLong("fileSize");
+//
+//                            return r.createMessage() + "*" + r.fileByteRequest();
+//
+//
+////                    if(!r.judgeContent(received_document)){
+////                    }
+//
+//                        } else if (command.equals("FILE_BYTES_REQUEST")) {
+//                            r.content = "";     // empty content for now
+//                            r.message = "successfully read";
+//                            r.status = true;
+//                            return r.fileByteResponse();
+//
+//                        } else if (command.equals("FILE_DELETE_REQUEST")) {
+//                            r.message = "pathname does not exist";
+//                            r.status = false;
+//                            return r.fileDeleteResponse();
+//
+//                        } else if (command.equals("FILE_MODIFY_REQUEST")) {
+////                        some commands
+//                            r.message = "pathname does not exist";
+//                            r.status = false;
+//                            return r.fileModifyResponse();
+//
+//                        } else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
+//
+//                            r.message = "directory create ok";
+//                            r.status = false;
+//                            return r.directoryCreateResponse();
+//
+//                        } else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
+//
+//                            r.message = "directory does not exist";
+//                            r.status = false;
+//                            return r.directoryDeleteResponse();
+//                        }else{
+//
+//                            return "invalid request";
+//                        }
+//                    }else{
+//
+//                        if (command.equals("FILE_CREATE_REQUEST")) {
+//                            r.message = "file exists";
+//                            r.status = false;
+//
+//                            return r.createMessage();
+//
+//                        } else if (command.equals("FILE_BYTES_REQUEST")) {
+//                            r.content = "";     // empty content for now
+//                            r.message = "successfully read";
+//                            r.status = true;
+//                            return r.fileByteResponse();
+//
+//                        } else if (command.equals("FILE_DELETE_REQUEST")) {
+//                            r.message = "pathname does not exist";
+//                            r.status = false;
+//                            return r.fileDeleteResponse();
+//
+//                        } else if (command.equals("FILE_MODIFY_REQUEST")) {
+////                        some commands
+//                            r.message = "pathname does not exist";
+//                            r.status = false;
+//                            return r.fileModifyResponse();
+//
+//                        } else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
+//
+//                            r.message = "directory create ok";
+//                            r.status = false;
+//                            return r.directoryCreateResponse();
+//
+//                        } else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
+//
+//                            r.message = "directory does not exist";
+//                            r.status = false;
+//                            return r.directoryDeleteResponse();
+//                        }else{
+//
+//                            return "invalid request";
+//                        }
+//                    }
+//                }
             }else if(command.contains("RESPONSE")){
                 if(command.equals("FILE_CREATE_RESPONSE")){
+
+                    return "file create response received";
 
 
                 }else if(command.equals("FILE_BYTES_RESPONSE")){

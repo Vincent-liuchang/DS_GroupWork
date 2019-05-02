@@ -74,23 +74,16 @@ public class Peer
                 }else if(command.equals("FILE_BYTES_REQUEST")) {
 
                     ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(
-                            received_document.getString("md5"),
+                            r.fd.getString("md5"),
                             received_document.getLong("position"),
                             received_document.getLong("length"));
 
-                    byte[] byteArray = new byte[byteBuffer.remaining()];
+                    String bf = new String(byteBuffer.array());
 
-                    System.out.println("break point 1");
-
-                    String bf = Base64.getEncoder().encodeToString(byteArray);
-
-                    System.out.println(bf);
-
-                    r.content = bf;     // empty content for now
+                    r.content = bf;
                     r.message = "successfully read";
                     r.status = true;
                     return r.fileByteResponse();
-
                 }
 
 
@@ -188,11 +181,27 @@ public class Peer
             }else if(command.contains("RESPONSE")){
                 if(command.equals("FILE_CREATE_RESPONSE")){
 
+
+
                     return "file create response received";
 
 
                 }else if(command.equals("FILE_BYTES_RESPONSE")){
 //                        some commands
+                    String content = received_document.getString("content");
+                    ByteBuffer bf = ByteBuffer.wrap(content.getBytes());
+
+                    ServerMain.fileSystemManager.createFileLoader(
+                            received_document.getString("pathName"),
+                            r.fd.getString("md5"),
+                            received_document.getLong("length"),
+                            r.fd.getLong("lastModified"));
+
+                    ServerMain.fileSystemManager.writeFile(
+                            received_document.getString("pathName"),
+                            bf,
+                            received_document.getLong("position"));
+
                     return "file bytes response";
 
                 }else if(command.equals("FILE_DELETE_RESPONSE")){

@@ -13,25 +13,26 @@ import unimelb.bitbox.util.Configuration;
 import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.FileSystemManager;
 
-public class Peer 
+public class Peer
 {
-	private static Logger log = Logger.getLogger(Peer.class.getName());
-	private static boolean createOrModify;    // true = create    false = modify
+    static private ServerMain mainServer;
+    private static Logger log = Logger.getLogger(Peer.class.getName());
+    private static boolean createOrModify;    // true = create    false = modify
 
-    public static void main( String[] args ) throws IOException, NumberFormatException, NoSuchAlgorithmException
+    public static void main( String[] args ) throws IOException, NumberFormatException, NoSuchAlgorithmException, InterruptedException
     {
-    	System.setProperty("java.util.logging.SimpleFormatter.format",
+        System.setProperty("java.util.logging.SimpleFormatter.format",
                 "[%1$tc] %2$s %4$s: %5$s%n");
         log.info("BitBox Peer starting...");
         Configuration.getConfiguration();
-        
-        new ServerMain();
+
+        mainServer = new ServerMain();
     }
 
     private int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));
     private String [] peerstring = Configuration.getConfigurationValue("peers").split(" ");
     private ArrayList<String> peers = new ArrayList<String>(Arrays.asList(peerstring));
-    private Client client = new Client(peers, port);
+    private Client client = new Client(peers, 8111);
     private Server server = new Server(port);;
 
     public  void start(){
@@ -44,9 +45,15 @@ public class Peer
         server.sendtoClient(message);
     }
     public static String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
-
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
-
+            // receive command = handshake_response, from client
+            try{
+                Thread t = new Thread(() -> mainServer.initialSync());
+                t.start();
+                Thread.sleep(Long.parseLong(Configuration.getConfigurationValue("syncInterval")));
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
             return "three way handshake complete";
         }else {
             Response r = new Response(received_document);
@@ -124,7 +131,7 @@ public class Peer
 
                     if(r.pathSafe(received_document) &&
                             ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))
-                            ) {
+                    ) {
 
                         ServerMain.fileSystemManager.deleteDirectory(received_document.getString("pathName"));
                         r.message = "directory delete succeed";
@@ -134,7 +141,7 @@ public class Peer
                         r.status = false;
                     }
                     return r.directoryCreateResponse();
-                        }
+                }
 
 
 
@@ -287,4 +294,6 @@ public class Peer
             return "nothing";
         }
     }
+
+
 }

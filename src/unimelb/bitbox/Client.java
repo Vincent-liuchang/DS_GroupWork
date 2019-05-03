@@ -105,14 +105,19 @@ public class Client extends Thread {
 	}
 
 	public void sendtoServer(String message){
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
-			out.write(message+"\n");
-			out.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+	    if(socket != null){
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+                out.write(message+"\n");
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
 
 	}
 

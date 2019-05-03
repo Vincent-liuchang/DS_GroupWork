@@ -53,10 +53,35 @@ public class Client extends Thread {
 	            while (true) {
 	                // Receive the reply from the server by reading from the socket input stream
 	                String received = in.readLine(); // This method blocks until there
-					String received_message = Peer.operation(Document.parse(received))+"\n";
-	                out.write(received_message);
-	                out.flush();
-	                }
+					received = received+ "\n";
+					System.out.print("clients received from server: " + received +"\n");
+
+					if(received.contains("*")){
+
+						int index = received.indexOf("*");
+						String firstStr = received.substring(0,index);
+						String secondtStr = received.substring(index+1);
+						Document received1 = Document.parse(firstStr);
+						Document received2 = Document.parse(secondtStr);
+						System.out.println(firstStr);
+						System.out.println(secondtStr);
+
+						out.write(Peer.operation(received1)+"\n");
+						out.write(Peer.operation(received2)+"\n");
+						out.flush();
+
+
+					}
+					else if(received.contains("_")){
+						Document received_message = Document.parse(received);
+						System.out.println("CLIENT: " + Peer.operation(received_message) + "\n");
+						out.write(Peer.operation(received_message)+"\n");
+						out.flush();
+					}else{
+						out.write(received+"\n");
+						out.flush();
+					}
+	            }
 		    
 		} catch (ConnectException e) {
 			try {
@@ -73,21 +98,26 @@ public class Client extends Thread {
 				e1.printStackTrace();
 			}
 		}
-		catch (IOException e) {
+		catch (IOException | NoSuchAlgorithmException e) {
 
 		}
 
 	}
 
 	public void sendtoServer(String message){
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
-			out.write(message+"\n");
-			out.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+	    if(socket != null){
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+                out.write(message+"\n");
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
 
 	}
 

@@ -16,33 +16,65 @@ public class ServerMain implements FileSystemObserver {
 	private Peer peer = new Peer() ;
 
 
-	
-	
-	public ServerMain() throws NumberFormatException, IOException, NoSuchAlgorithmException {
+
+
+	public ServerMain() throws NumberFormatException, IOException, NoSuchAlgorithmException, InterruptedException {
 		fileSystemManager = new FileSystemManager(Configuration.getConfigurationValue("path"),this);
 
 		peer.start();
 
+
 	}
-	
-	
+
+	public void initialSync() {
+		for(FileSystemManager.FileSystemEvent event: ServerMain.fileSystemManager.generateSyncEvents())
+			processFileSystemEvent(event);
+	}
+
 	@Override
 	public void processFileSystemEvent(FileSystemEvent fileSystemEvent) {
 		Document file_descriptor = new Document();
 
+
 		if(fileSystemEvent.event.equals(FileSystemManager.EVENT.FILE_CREATE)){
 			Document file_create = new Document();
 			file_create.append("command", "FILE_CREATE_REQUEST");
-					file_descriptor.append("md5",fileSystemEvent.fileDescriptor.md5);
-					file_descriptor.append("lastModified",fileSystemEvent.fileDescriptor.lastModified);
-					file_descriptor.append("fileSizes",fileSystemEvent.fileDescriptor.fileSize);
-			file_create.append("filedescriptor",file_descriptor);
+			file_descriptor.append("md5",fileSystemEvent.fileDescriptor.md5);
+			file_descriptor.append("lastModified",fileSystemEvent.fileDescriptor.lastModified);
+			file_descriptor.append("fileSize",fileSystemEvent.fileDescriptor.fileSize);
+			file_create.append("fileDescriptor",file_descriptor.toJson());
 			file_create.append("pathName",fileSystemEvent.pathName);
 			String message = file_create.toJson();
 			peer.sentToOtherPeers(message);
+		}else if(fileSystemEvent.event.equals(FileSystemManager.EVENT.FILE_DELETE)){
+			Document file_create = new Document();
+			file_create.append("command", "FILE_DELETE_REQUEST");
+			file_descriptor.append("md5",fileSystemEvent.fileDescriptor.md5);
+			file_descriptor.append("lastModified",fileSystemEvent.fileDescriptor.lastModified);
+			file_descriptor.append("fileSize",fileSystemEvent.fileDescriptor.fileSize);
+			file_create.append("fileDescriptor",file_descriptor.toJson());
+			file_create.append("pathName",fileSystemEvent.pathName);
+			String message = file_create.toJson();
+			peer.sentToOtherPeers(message);
+		}else if(fileSystemEvent.event.equals(FileSystemManager.EVENT.DIRECTORY_CREATE)){
+			Document file_create = new Document();
+			file_create.append("command", "DIRECTORY_CREATE_REQUEST");
+			file_create.append("pathName",fileSystemEvent.pathName);
+			String message = file_create.toJson();
+			peer.sentToOtherPeers(message);
+		}else if(fileSystemEvent.event.equals(FileSystemManager.EVENT.DIRECTORY_DELETE)) {
+			Document file_create = new Document();
+			file_create.append("command", "DIRECTORY_DELETE_REQUEST");
+			file_create.append("pathName", fileSystemEvent.pathName);
+			String message = file_create.toJson();
+			peer.sentToOtherPeers(message);
 		}
-
 	}
-	
+
+
+
+
+
+
+
 }
-	

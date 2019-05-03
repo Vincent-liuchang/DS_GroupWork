@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import javax.net.ServerSocketFactory;
 import unimelb.bitbox.util.Document;
@@ -76,61 +77,79 @@ public class Server extends Thread{
                 //one is processed unless...we use threads!
                 String clientMsg = null;
                     while((clientMsg = in.readLine()) != "exit") {
-						Document received = Document.parse(clientMsg);
-						if(clientMsg.equals("three_way_handshake_complete")) {
-							System.out.println(clientMsg);
-						}
-						else {
-							if (received.get("command").equals("HANDSHAKE_REQUEST")) {
-								System.out.println("HandShake Request Accepted by Server");
-								System.out.println("HandSacke Response Sent");
-								if (Socketlist.size() <= 10) {
-									Document handshake = new Document();
-									handshake.append("command", "HANDSHAKE_RESPONSE");
-									HostPort hostport = new HostPort(ip, port);
-									handshake.append("hostPort", hostport.toDoc());
-									out.write(handshake.toJson() + "\n");
-									out.flush();
-								} else {
-									Socketlist.remove(10);
-									Document handshake = new Document();
-									handshake.append("command", "CONNECTION_REFUSED");
-									handshake.append("message", "connection limit reached");
-									ArrayList<Document> peers = new ArrayList<Document>();
-									for (Socket s : Socketlist) {
-										HostPort hostport = new HostPort(s.getInetAddress().toString(), s.getPort());
-										peers.add(hostport.toDoc());
-									}
-									handshake.append("peers", peers);
 
-									out.write(handshake.toJson()+"\n");
+						if(clientMsg.contains("*")){
+							int index = clientMsg.indexOf("*");
+							String firstStr = clientMsg.substring(0,index);
+							String secondtStr = clientMsg.substring(index+1);
+							Document received1 = Document.parse(firstStr);
+							Document received2 = Document.parse(secondtStr);
+							System.out.println(firstStr);
+							System.out.println(secondtStr);
+
+							out.write(Peer.operation(received1)+"\n");
+							out.write(Peer.operation(received2)+"\n");
+							out.flush();
+
+						}else{
+							Document received = Document.parse(clientMsg);
+							if(!clientMsg.contains("_")) {
+								System.out.println(clientMsg);
+							}
+							else {
+								if (received.get("command").equals("HANDSHAKE_REQUEST")) {
+									System.out.println("HandShake Request Accepted by Server");
+									System.out.println("HandSacke Response Sent");
+									if (Socketlist.size() <= 10) {
+										Document handshake = new Document();
+										handshake.append("command", "HANDSHAKE_RESPONSE");
+										HostPort hostport = new HostPort(ip, port);
+										handshake.append("hostPort", hostport.toDoc());
+										out.write(handshake.toJson() + "\n");
+										out.flush();
+									} else {
+										Socketlist.remove(10);
+										Document handshake = new Document();
+										handshake.append("command", "CONNECTION_REFUSED");
+										handshake.append("message", "connection limit reached");
+										ArrayList<Document> peers = new ArrayList<Document>();
+										for (Socket s : Socketlist) {
+											HostPort hostport = new HostPort(s.getInetAddress().toString(), s.getPort());
+											peers.add(hostport.toDoc());
+										}
+										handshake.append("peers", peers);
+
+										out.write(handshake.toJson()+"\n");
+										out.flush();
+									}
+								} else {
+									System.out.println("SERVER: " + Peer.operation((received))+ "\n");
+									out.write(Peer.operation(received)+"\n");
 									out.flush();
 								}
-							} else {
-								out.write(Peer.operation(received)+"\n");
-								out.flush();
 							}
 						}
+
                     }
             }
             
-		} catch (IOException e) {
+		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void sendtoClient(String message){
-		for(Socket s: Socketlist){
-			try {
-				BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
-				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
-				out.write(message+"\n");
-				out.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
+		if(Socketlist.size()!=0){
+			for(Socket s: Socketlist){
+				try {
+					BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
+					BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
+					out.write(message+"\n");
+					out.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-
 		}
 	}
-
 }

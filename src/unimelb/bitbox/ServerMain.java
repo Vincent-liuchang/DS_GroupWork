@@ -20,12 +20,16 @@ public class ServerMain implements FileSystemObserver {
 	
 	public ServerMain() throws NumberFormatException, IOException, NoSuchAlgorithmException {
 		fileSystemManager = new FileSystemManager(Configuration.getConfigurationValue("path"),this);
-
 		peer.start();
 
 	}
-	
-	
+
+	public void initialSync(){
+		for(FileSystemManager.FileSystemEvent event: ServerMain.fileSystemManager.generateSyncEvents()){
+			processFileSystemEvent(event);
+		}
+	}
+
 	@Override
 	public void processFileSystemEvent(FileSystemEvent fileSystemEvent) {
 		Document file_descriptor = new Document();

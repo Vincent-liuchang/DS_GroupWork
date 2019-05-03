@@ -139,14 +139,16 @@ public class Server extends Thread{
 	}
 
 	public void sendtoClient(String message){
-		for(Socket s: Socketlist){
-			try {
-				BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
-				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
-				out.write(message+"\n");
-				out.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
+		if(Socketlist.size() != 0) {
+			for (Socket s : Socketlist) {
+				try {
+					BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
+					BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
+					out.write(message + "\n");
+					out.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

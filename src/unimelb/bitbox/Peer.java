@@ -26,7 +26,6 @@ public class Peer
         Configuration.getConfiguration();
         
         new ServerMain();
-
     }
 
     private int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));
@@ -46,7 +45,8 @@ public class Peer
     }
     public static String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
 
-        if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){       // receive command = handshake_response, from client
+        if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
+
             return "three way handshake complete";
         }else {
             Response r = new Response(received_document);

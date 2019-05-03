@@ -59,7 +59,7 @@ public class Peer
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
             // receive command = handshake_response, from client
             Peer.sync();
-            return "three way handshake complete";
+            return "nothing";
         }else {
             Response r = new Response(received_document);
             String command = received_document.getString("command");
@@ -78,7 +78,7 @@ public class Peer
 
                         createOrModify = true;
 
-                        return r.createMessage() + "*" + r.fileByteRequest();
+                        return r.createMessage() + "longgenb1995" + r.fileByteRequest();
 //                        return r.fileByteRequest();
 
                     }else{
@@ -157,6 +157,7 @@ public class Peer
                         String content = received_document.getString("content");
                         ByteBuffer bf = ByteBuffer.wrap(content.getBytes());
 
+
                         ServerMain.fileSystemManager.createFileLoader(
                                 received_document.getString("pathName"),
                                 r.fd.getString("md5"),
@@ -169,9 +170,14 @@ public class Peer
                                 received_document.getLong("position"));
 
                         if(ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))){
-                            return "file bytes response";
+                            return "nothing";
                         }else{
-                            return null;
+
+                            ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
+
+                            r.position = 0;
+                            r.length = r.fd.getLong("fileSize");
+                            return r.fileByteRequest();
                         }
 
                     }
@@ -186,4 +192,3 @@ public class Peer
     }
 
 
-}

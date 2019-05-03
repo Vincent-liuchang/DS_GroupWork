@@ -72,14 +72,16 @@ public class Client extends Thread {
 							System.out.println(message[0]);
 							System.out.println(message[1]);
 
-							out.write(Peer.operation(received1)+"\n");
-							out.write(Peer.operation(received2)+"\n");
+							out.write(received1.toJson()+"\n");
+							out.write(received2.toJson()+"\n");
 							out.flush();
 
 						}
 						else {
-							out.write(Peer.operation(received_message) + "\n");
-							out.flush();
+							if(Peer.operation(received_message)!= "nothing") {
+								out.write(Peer.operation(received_message) + "\n");
+								out.flush();
+							}
 						}
 					}else{
 						System.out.println("NO Json File Received");

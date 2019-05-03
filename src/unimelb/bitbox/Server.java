@@ -123,15 +123,18 @@ public class Server extends Thread{
 										System.out.println(message[0]);
 										System.out.println(message[1]);
 
-										out.write(Peer.operation(received1)+"\n");
-										out.write(Peer.operation(received2)+"\n");
+										out.write(received1.toJson()+"\n");
+										out.write(received2.toJson()+"\n");
 										out.flush();
 
 									}
 									else {
-										System.out.println("SERVER: " + Peer.operation((received)) + "\n");
-										out.write(Peer.operation(received) + "\n");
-										out.flush();
+
+										if(Peer.operation(received)!= "nothing") {
+											System.out.println("SERVER: " + Peer.operation((received)) + "\n");
+											out.write(Peer.operation(received) + "\n");
+											out.flush();
+										}
 									}
 								}
 							}

@@ -37,6 +37,8 @@ public class Client extends Thread {
 	
 	public void run() {
 		try{
+
+			String received = null;
 			Socket socket = new Socket(ip, port);
 				this.socket = socket;
 				//Get the input/output streams for reading/writing data from/to the socket
@@ -50,17 +52,16 @@ public class Client extends Thread {
 				out.write(handshake.toJson()+"\n");
 				out.flush();
 
-				String received;
+
 	            //While the user input differs from "exit"
 	            while ((received = in.readLine()) !=null) {
 	                // Receive the reply from the server by reading from the socket input stream
 	                received = in.readLine(); // This method blocks until there
 					received = received+ "\n";
-					System.out.print("clients received from server: " + received +"\n");
+					System.out.print("Clients received from Server: " + received +"\n");
 
 					if(received.contains("_")){
 						Document received_message = Document.parse(received);
-						System.out.println("CLIENT: " + Peer.operation(received_message) + "\n");
 
 
 						if(Peer.operation(received_message).contains("longgenb1995")){
@@ -71,8 +72,6 @@ public class Client extends Thread {
 
 							Document received1 = Document.parse(message[0]);
 							Document received2 = Document.parse(message[1]);
-							System.out.println(message[0]);
-							System.out.println(message[1]);
 
 							out.write(received1.toJson()+"\n");
 							out.write(received2.toJson()+"\n");
@@ -80,7 +79,7 @@ public class Client extends Thread {
 
 						}
 						else {
-							if(!Peer.operation(received_message).equals("nothing")) {
+							if(!Peer.operation(received_message).equals("ok")) {
 								out.write(Peer.operation(received_message) + "\n");
 								out.flush();
 							}
@@ -108,9 +107,9 @@ public class Client extends Thread {
 		catch (SocketException  e) {
 			System.out.println("Server off line");
 			try {
-				socket.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+				this.socket.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
 			}
 			try {
 				if(iplist.indexOf(ip)!= iplist.size()-1) {
@@ -135,9 +134,11 @@ public class Client extends Thread {
 
 	    if(socket != null){
             try {
+
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
-				System.out.println("nihao secai"+message);
+				System.out.println("Client send to Server: " + message);
+
                 out.write(message+"\n");
                 out.flush();
             } catch (IOException e) {

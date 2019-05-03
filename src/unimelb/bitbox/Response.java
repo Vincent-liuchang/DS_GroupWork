@@ -42,6 +42,17 @@ public class Response {
         return reply.toJson();
     }
 
+
+    public String invalidProtocol(){
+        command = "INVALID_PROTOCOL";
+        reply.append("command", command);
+        reply.append("message", message);
+
+        return reply.toJson();
+
+
+    }
+
     // FILE_BYTES_REQUEST
     public String fileByteRequest(){
 
@@ -161,6 +172,8 @@ public class Response {
 
         return reply.toJson();
     }
+
+
 
     public String getResponceMessage(){
         return reply.toJson();

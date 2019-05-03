@@ -60,7 +60,7 @@ public class Peer
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
             // receive command = handshake_response, from client
             Peer.sync();
-            return "nothing";
+            return "ok";
         }else {
             Response r = new Response(received_document);
             String command = received_document.getString("command");
@@ -80,7 +80,6 @@ public class Peer
                         createOrModify = true;
 
                         return r.createMessage() + "longgenb1995" + r.fileByteRequest();
-//                        return r.fileByteRequest();
 
                     }else{
                         r.message = "file loader not ready";
@@ -88,7 +87,28 @@ public class Peer
 
                         return r.createMessage();
                     }
-                }else if(command.equals("FILE_BYTES_REQUEST")) {
+                }else if (command.equals("FILE_MODIFY_REQUEST")) {
+
+                    if(r.pathSafe(received_document) && r.nameExist(received_document)){
+
+                        r.message = "file loader ready";
+                        r.status = true;
+
+                        r.position = 0;
+                        r.length = r.fd.getLong("fileSize");
+
+                        createOrModify = false;
+
+                        return r.createMessage() + "longgenb1995" + r.fileByteRequest();
+
+                    }else{
+                        r.message = "file loader not ready";
+                        r.status = false;
+
+                        return r.createMessage();
+                    }
+                }
+                else if(command.equals("FILE_BYTES_REQUEST")) {
 
 
                     ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(
@@ -149,12 +169,18 @@ public class Peer
                         r.status = false;
                     }
                     return r.directoryCreateResponse();
+                }else{
+
+                    r.message = "message must contain a command field as string";
+
+                    return r.invalidProtocol();
                 }
 
 
             }else if(command.contains("RESPONSE")){
 
                 if(command.equals("FILE_BYTES_RESPONSE")){
+
 
                     if(createOrModify){
                         String content = received_document.getString("content");
@@ -174,7 +200,33 @@ public class Peer
                                 received_document.getLong("position"));
 
                         if(ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))){
-                            return "nothing";
+                            return "ok";
+                        }else{
+
+                            ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
+
+                            r.position = 0;
+                            r.length = r.fd.getLong("fileSize");
+                            return r.fileByteRequest();
+                        }
+
+                    }else{
+                        String content = received_document.getString("content");
+
+                        ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
+
+                        ServerMain.fileSystemManager.modifyFileLoader(
+                                received_document.getString("pathName"),
+                                r.fd.getString("md5"),
+                                r.fd.getLong("lastModified"));
+
+                        ServerMain.fileSystemManager.writeFile(
+                                received_document.getString("pathName"),
+                                bf,
+                                received_document.getLong("position"));
+
+                        if(ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))){
+                            return "ok";
                         }else{
 
                             ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
@@ -186,12 +238,26 @@ public class Peer
 
                     }
 
+                }else if(command.equals("FILE_DELETE_RESPONSE") ||
+                        command.equals("FILE_MODIFY_RESPONSE") ||
+                        command.equals("DIRECTORY_CREATE_RESPONSE") ||
+                        command.equals("DIRECTORY_DELETE_RESPONSE") ){
+
+                    return "ok";
+
+                }else{
+                    r.message = "message must contain a command field as string";
+
+                    return r.invalidProtocol();
                 }
 
-                }
+                }else{
+                r.message = "message must contain a command field as string";
+
+                return r.invalidProtocol();
             }
-
-            return "nothing";
+            }
+        
         }
     }
 

@@ -50,9 +50,9 @@ public class Server extends Thread{
 				}
 
 				Socketlist.add(client);
-				System.out.println("now the server has " + Socketlist.size() + " clients");
+				System.out.println("Now the server has " + Socketlist.size() + " clients"+"\n");
 
-				System.out.println("Client "+counter+": Applying for connection!");
+				System.out.println("Client "+counter+": Applying for connection!"+"\n");
 				
 				
 				// Start a new thread for a connection
@@ -76,7 +76,7 @@ public class Server extends Thread{
 				System.out.println("Remote Port: " + clientSocket.getPort());
 				System.out.println("Remote Hostname: " + clientSocket.getInetAddress().getHostName());
 				System.out.println("Local Port: " + clientSocket.getLocalPort());
-				System.out.println("Connection established");
+				System.out.println("Connection established"+"\n");
 
 				//Get the input/output streams for reading/writing data from/to the socket
 				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
@@ -87,6 +87,7 @@ public class Server extends Thread{
 				//Notice that no other connection can be accepted and processed until the last line of
 				//code of this loop is executed, incoming connections have to wait until the current
 				//one is processed unless...we use threads!
+
 				String clientMsg;
 				while ((clientMsg = in.readLine()) !=  null) {
 
@@ -130,8 +131,6 @@ public class Server extends Thread{
 
 								Document received1 = Document.parse(message[0]);
 								Document received2 = Document.parse(message[1]);
-								System.out.println(message[0]);
-								System.out.println(message[1]);
 
 								out.write(received1.toJson() + "\n");
 								out.write(received2.toJson() + "\n");
@@ -139,8 +138,8 @@ public class Server extends Thread{
 
 							} else {
 
-								if (!Peer.operation(received).equals("nothing")) {
-									System.out.println("SERVER: " + Peer.operation((received)) + "\n");
+								if (!Peer.operation(received).equals("ok")) {
+									System.out.println("Server received from client: " + Peer.operation((received)) + "\n");
 									out.write(Peer.operation(received) + "\n");
 									out.flush();
 								}
@@ -153,8 +152,9 @@ public class Server extends Thread{
 
 
 		}catch(SocketException e){
-			System.out.println(Socketlist.toString());
 
+			System.out.println("Socketlist need to be update");
+			System.out.println(Socketlist.toString());
 			System.out.println("client off line");
 
 		} catch (IOException | NoSuchAlgorithmException e) {

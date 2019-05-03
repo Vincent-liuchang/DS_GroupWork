@@ -50,10 +50,11 @@ public class Client extends Thread {
 				out.write(handshake.toJson()+"\n");
 				out.flush();
 
+				String received = in.readLine();
 	            //While the user input differs from "exit"
-	            while (true) {
+	            while (received !=null) {
 	                // Receive the reply from the server by reading from the socket input stream
-	                String received = in.readLine(); // This method blocks until there
+	                received = in.readLine(); // This method blocks until there
 					received = received+ "\n";
 					System.out.print("clients received from server: " + received +"\n");
 

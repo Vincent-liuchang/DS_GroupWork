@@ -1,6 +1,7 @@
 package unimelb.bitbox;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -95,7 +96,9 @@ public class Peer
                             received_document.getLong("position"),
                             received_document.getLong("length"));
 
-                    String bf = new String(byteBuffer.array());
+
+                    String bf = Base64.getEncoder().encodeToString(byteBuffer.array());
+//                    String bf = new String(byteBuffer.array());
 
                     r.content = bf;
                     r.message = "successfully read";
@@ -155,7 +158,8 @@ public class Peer
 
                     if(createOrModify){
                         String content = received_document.getString("content");
-                        ByteBuffer bf = ByteBuffer.wrap(content.getBytes());
+
+                        ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
 
 
                         ServerMain.fileSystemManager.createFileLoader(

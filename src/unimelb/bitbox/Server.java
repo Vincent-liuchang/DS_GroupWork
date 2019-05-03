@@ -70,7 +70,7 @@ public class Server extends Thread{
 	private void serveClient(Socket client){
 		try(Socket clientSocket = client) {
 			//Listen for incoming connections for ever
-			while (true) {
+
 
 				System.out.println("Client1 connection number " + counter + " accepted:");
 				System.out.println("Remote Port: " + clientSocket.getPort());
@@ -87,8 +87,8 @@ public class Server extends Thread{
 				//Notice that no other connection can be accepted and processed until the last line of
 				//code of this loop is executed, incoming connections have to wait until the current
 				//one is processed unless...we use threads!
-				String clientMsg = null;
-				while ((clientMsg = in.readLine()) != "exit") {
+				String clientMsg;
+				while ((clientMsg = in.readLine()) !=  null) {
 
 
 					if (!clientMsg.contains("_")) {
@@ -150,7 +150,7 @@ public class Server extends Thread{
 
 
 				}
-			}
+
 
 		}catch(SocketException e){
 			System.out.println(Socketlist.toString());

@@ -44,16 +44,21 @@ public class Peer
         client.sendtoServer(message);
         server.sendtoClient(message);
     }
+
+    public static void sync(){
+        try{
+            Thread t = new Thread(() -> mainServer.initialSync());
+            t.start();
+            Thread.sleep(Long.parseLong(Configuration.getConfigurationValue("syncInterval")));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
             // receive command = handshake_response, from client
-            try{
-                Thread t = new Thread(() -> mainServer.initialSync());
-                t.start();
-                Thread.sleep(Long.parseLong(Configuration.getConfigurationValue("syncInterval")));
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
+            Peer.sync();
             return "three way handshake complete";
         }else {
             Response r = new Response(received_document);
@@ -144,105 +149,9 @@ public class Peer
                 }
 
 
-
-//                if (r.pathSafe(received_document)) {
-//
-//                    if (r.nameExist(received_document)) {
-//
-//                        if (command.equals("FILE_CREATE_REQUEST")) {
-//                            r.message = "file loader ready";
-//                            r.status = true;
-//
-//                            r.position = 0;
-//                            r.length = r.fd.getLong("fileSize");
-//
-//                            return r.createMessage() + "*" + r.fileByteRequest();
-//
-//
-////                    if(!r.judgeContent(received_document)){
-////                    }
-//
-//                        } else if (command.equals("FILE_BYTES_REQUEST")) {
-//                            r.content = "";     // empty content for now
-//                            r.message = "successfully read";
-//                            r.status = true;
-//                            return r.fileByteResponse();
-//
-//                        } else if (command.equals("FILE_DELETE_REQUEST")) {
-//                            r.message = "pathname does not exist";
-//                            r.status = false;
-//                            return r.fileDeleteResponse();
-//
-//                        } else if (command.equals("FILE_MODIFY_REQUEST")) {
-////                        some commands
-//                            r.message = "pathname does not exist";
-//                            r.status = false;
-//                            return r.fileModifyResponse();
-//
-//                        } else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
-//
-//                            r.message = "directory create ok";
-//                            r.status = false;
-//                            return r.directoryCreateResponse();
-//
-//                        } else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
-//
-//                            r.message = "directory does not exist";
-//                            r.status = false;
-//                            return r.directoryDeleteResponse();
-//                        }else{
-//
-//                            return "invalid request";
-//                        }
-//                    }else{
-//
-//                        if (command.equals("FILE_CREATE_REQUEST")) {
-//                            r.message = "file exists";
-//                            r.status = false;
-//
-//                            return r.createMessage();
-//
-//                        } else if (command.equals("FILE_BYTES_REQUEST")) {
-//                            r.content = "";     // empty content for now
-//                            r.message = "successfully read";
-//                            r.status = true;
-//                            return r.fileByteResponse();
-//
-//                        } else if (command.equals("FILE_DELETE_REQUEST")) {
-//                            r.message = "pathname does not exist";
-//                            r.status = false;
-//                            return r.fileDeleteResponse();
-//
-//                        } else if (command.equals("FILE_MODIFY_REQUEST")) {
-////                        some commands
-//                            r.message = "pathname does not exist";
-//                            r.status = false;
-//                            return r.fileModifyResponse();
-//
-//                        } else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
-//
-//                            r.message = "directory create ok";
-//                            r.status = false;
-//                            return r.directoryCreateResponse();
-//
-//                        } else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
-//
-//                            r.message = "directory does not exist";
-//                            r.status = false;
-//                            return r.directoryDeleteResponse();
-//                        }else{
-//
-//                            return "invalid request";
-//                        }
-//                    }
-//                }
             }else if(command.contains("RESPONSE")){
-                if(command.equals("FILE_CREATE_RESPONSE")){
 
-                    return "file create response received";
-
-                }else if(command.equals("FILE_BYTES_RESPONSE")){
-//                        some commands
+                if(command.equals("FILE_BYTES_RESPONSE")){
 
                     if(createOrModify){
                         String content = received_document.getString("content");
@@ -267,26 +176,7 @@ public class Peer
 
                     }
 
-
-
-                }else if(command.equals("FILE_DELETE_RESPONSE")){
-
-                    return "task completed";
-
-
-                }else if(command.equals("FILE_MODIFY_RESPONSE")){
-
-                    return "task completed";
-
-                }else if(command.equals("DIRECTORY_CREATE_RESPONSE")){
-//                      if ...
-
-                    return "task completed";
-
-                }else if(command.equals("DIRECTORY_DELETE_RESPONSE")){
-//                      if ...
-
-                    return "task completed";
+                }
 
                 }
             }

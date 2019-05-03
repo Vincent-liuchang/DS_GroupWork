@@ -56,30 +56,33 @@ public class Client extends Thread {
 					received = received+ "\n";
 					System.out.print("clients received from server: " + received +"\n");
 
-					if(received.contains("*")){
-
-						int index = received.indexOf("*");
-						String firstStr = received.substring(0,index);
-						String secondtStr = received.substring(index+1);
-						Document received1 = Document.parse(firstStr);
-						Document received2 = Document.parse(secondtStr);
-						System.out.println(firstStr);
-						System.out.println(secondtStr);
-
-						out.write(Peer.operation(received1)+"\n");
-						out.write(Peer.operation(received2)+"\n");
-						out.flush();
-
-
-					}
-					else if(received.contains("_")){
+					if(received.contains("_")){
 						Document received_message = Document.parse(received);
 						System.out.println("CLIENT: " + Peer.operation(received_message) + "\n");
-						out.write(Peer.operation(received_message)+"\n");
-						out.flush();
+
+
+						if(Peer.operation(received_message).contains("longgenb1995")){
+
+							String[] message = new String[2];
+							message[0] = Peer.operation(received_message).split("longgenb1995")[0];
+							message[1] = Peer.operation(received_message).split("longgenb1995")[1];
+
+							Document received1 = Document.parse(message[0]);
+							Document received2 = Document.parse(message[1]);
+							System.out.println(message[0]);
+							System.out.println(message[1]);
+
+							out.write(Peer.operation(received1)+"\n");
+							out.write(Peer.operation(received2)+"\n");
+							out.flush();
+
+						}
+						else {
+							out.write(Peer.operation(received_message) + "\n");
+							out.flush();
+						}
 					}else{
-						out.write(received+"\n");
-						out.flush();
+						System.out.println("NO Json File Received");
 					}
 	            }
 		    

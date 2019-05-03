@@ -78,25 +78,13 @@ public class Server extends Thread{
                 String clientMsg = null;
                     while((clientMsg = in.readLine()) != "exit") {
 
-						if(clientMsg.contains("*")){
-							int index = clientMsg.indexOf("*");
-							String firstStr = clientMsg.substring(0,index);
-							String secondtStr = clientMsg.substring(index+1);
-							Document received1 = Document.parse(firstStr);
-							Document received2 = Document.parse(secondtStr);
-							System.out.println(firstStr);
-							System.out.println(secondtStr);
 
-							out.write(Peer.operation(received1)+"\n");
-							out.write(Peer.operation(received2)+"\n");
-							out.flush();
 
-						}else{
-							Document received = Document.parse(clientMsg);
 							if(!clientMsg.contains("_")) {
 								System.out.println(clientMsg);
 							}
 							else {
+								Document received = Document.parse(clientMsg);
 								if (received.get("command").equals("HANDSHAKE_REQUEST")) {
 									System.out.println("HandShake Request Accepted by Server");
 									System.out.println("HandSacke Response Sent");
@@ -107,6 +95,7 @@ public class Server extends Thread{
 										handshake.append("hostPort", hostport.toDoc());
 										out.write(handshake.toJson() + "\n");
 										out.flush();
+										Peer.sync();
 									} else {
 										Socketlist.remove(10);
 										Document handshake = new Document();
@@ -123,12 +112,30 @@ public class Server extends Thread{
 										out.flush();
 									}
 								} else {
-									System.out.println("SERVER: " + Peer.operation((received))+ "\n");
-									out.write(Peer.operation(received)+"\n");
-									out.flush();
+									if(Peer.operation(received).contains("longgenb1995")){
+
+										String[] message = new String[2];
+										message[0] = Peer.operation(received).split("longgenb1995")[0];
+										message[1] = Peer.operation(received).split("longgenb1995")[1];
+
+										Document received1 = Document.parse(message[0]);
+										Document received2 = Document.parse(message[1]);
+										System.out.println(message[0]);
+										System.out.println(message[1]);
+
+										out.write(Peer.operation(received1)+"\n");
+										out.write(Peer.operation(received2)+"\n");
+										out.flush();
+
+									}
+									else {
+										System.out.println("SERVER: " + Peer.operation((received)) + "\n");
+										out.write(Peer.operation(received) + "\n");
+										out.flush();
+									}
 								}
 							}
-						}
+
 
                     }
             }

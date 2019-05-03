@@ -108,6 +108,11 @@ public class Client extends Thread {
 		catch (SocketException  e) {
 			System.out.println("Server off line");
 			try {
+				socket.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			try {
 				if(iplist.indexOf(ip)!= iplist.size()-1) {
 					ip = iplist.get(iplist.indexOf(ip) + 1);
 					System.out.println("this peer not online, finding next ...."+ e.toString());
@@ -115,7 +120,6 @@ public class Client extends Thread {
 				else
 					ip = iplist.get(0);
 				Thread.sleep(5*1000);
-
 				run();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
@@ -133,6 +137,7 @@ public class Client extends Thread {
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+				System.out.println("nihao secai"+message);
                 out.write(message+"\n");
                 out.flush();
             } catch (IOException e) {

@@ -12,6 +12,8 @@ import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import javax.net.ServerSocketFactory;
+
+import unimelb.bitbox.util.Configuration;
 import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.HostPort;
 
@@ -39,7 +41,16 @@ public class Server extends Thread{
 			while(true){
 				Socket client = server.accept();
 				counter++;
+				if(Socketlist.size() != 0) {
+					for (int i = 0; i< Socketlist.size(); i++) {
+						if (Socketlist.get(i).isClosed()) {
+							Socketlist.remove(i);
+						}
+					}
+				}
+
 				Socketlist.add(client);
+				System.out.println("now the server has " + Socketlist.size() + " clients");
 
 				System.out.println("Client "+counter+": Applying for connection!");
 				
@@ -87,7 +98,7 @@ public class Server extends Thread{
 						if (received.get("command").equals("HANDSHAKE_REQUEST")) {
 							System.out.println("HandShake Request Accepted by Server");
 							System.out.println("HandSacke Response Sent");
-							if (Socketlist.size() <= 10) {
+							if (Socketlist.size() <= Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))) {
 								Document handshake = new Document();
 								handshake.append("command", "HANDSHAKE_RESPONSE");
 								HostPort hostport = new HostPort(ip, port);
@@ -96,7 +107,7 @@ public class Server extends Thread{
 								out.flush();
 								Peer.sync();
 							} else {
-								Socketlist.remove(10);
+								Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));
 								Document handshake = new Document();
 								handshake.append("command", "CONNECTION_REFUSED");
 								handshake.append("message", "connection limit reached");

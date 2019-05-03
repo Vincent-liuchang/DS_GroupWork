@@ -105,6 +105,7 @@ public class Client extends Thread {
 			}
 		}
 		catch (SocketException  e) {
+			System.out.println("Server off line");
 			try {
 				if(iplist.indexOf(ip)!= iplist.size()-1) {
 					ip = iplist.get(iplist.indexOf(ip) + 1);

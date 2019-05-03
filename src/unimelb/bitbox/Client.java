@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class Client extends Thread {
 
 						}
 						else {
-							if(Peer.operation(received_message)!= "nothing") {
+							if(!Peer.operation(received_message).equals("nothing")) {
 								out.write(Peer.operation(received_message) + "\n");
 								out.flush();
 							}
@@ -103,7 +104,22 @@ public class Client extends Thread {
 				e1.printStackTrace();
 			}
 		}
-		catch (IOException | NoSuchAlgorithmException e) {
+		catch (SocketException  e) {
+			try {
+				if(iplist.indexOf(ip)!= iplist.size()-1) {
+					ip = iplist.get(iplist.indexOf(ip) + 1);
+					System.out.println("this peer not online, finding next ...."+ e.toString());
+				}
+				else
+					ip = iplist.get(0);
+				Thread.sleep(5*1000);
+
+				run();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+		}
+		catch(IOException| NoSuchAlgorithmException e){
 
 		}
 

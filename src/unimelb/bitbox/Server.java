@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import javax.net.ServerSocketFactory;
@@ -56,93 +57,95 @@ public class Server extends Thread{
 	}
 	
 	private void serveClient(Socket client){
-		try(Socket clientSocket = client){
+		try(Socket clientSocket = client) {
 			//Listen for incoming connections for ever
-            while (true) {
-             
-                System.out.println("Client1 connection number " + counter + " accepted:");
-                System.out.println("Remote Port: " + clientSocket.getPort());
-                System.out.println("Remote Hostname: " + clientSocket.getInetAddress().getHostName());
-                System.out.println("Local Port: " + clientSocket.getLocalPort());
-                System.out.println("Connection established");
+			while (true) {
 
-                //Get the input/output streams for reading/writing data from/to the socket
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+				System.out.println("Client1 connection number " + counter + " accepted:");
+				System.out.println("Remote Port: " + clientSocket.getPort());
+				System.out.println("Remote Hostname: " + clientSocket.getInetAddress().getHostName());
+				System.out.println("Local Port: " + clientSocket.getLocalPort());
+				System.out.println("Connection established");
 
-
-                //Read the message from the client and reply
-                //Notice that no other connection can be accepted and processed until the last line of
-                //code of this loop is executed, incoming connections have to wait until the current
-                //one is processed unless...we use threads!
-                String clientMsg = null;
-                    while((clientMsg = in.readLine()) != "exit") {
+				//Get the input/output streams for reading/writing data from/to the socket
+				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
 
 
+				//Read the message from the client and reply
+				//Notice that no other connection can be accepted and processed until the last line of
+				//code of this loop is executed, incoming connections have to wait until the current
+				//one is processed unless...we use threads!
+				String clientMsg = null;
+				while ((clientMsg = in.readLine()) != "exit") {
 
-							if(!clientMsg.contains("_")) {
-								System.out.println(clientMsg);
+
+					if (!clientMsg.contains("_")) {
+						System.out.println(clientMsg);
+					} else {
+						Document received = Document.parse(clientMsg);
+						if (received.get("command").equals("HANDSHAKE_REQUEST")) {
+							System.out.println("HandShake Request Accepted by Server");
+							System.out.println("HandSacke Response Sent");
+							if (Socketlist.size() <= 10) {
+								Document handshake = new Document();
+								handshake.append("command", "HANDSHAKE_RESPONSE");
+								HostPort hostport = new HostPort(ip, port);
+								handshake.append("hostPort", hostport.toDoc());
+								out.write(handshake.toJson() + "\n");
+								out.flush();
+								Peer.sync();
+							} else {
+								Socketlist.remove(10);
+								Document handshake = new Document();
+								handshake.append("command", "CONNECTION_REFUSED");
+								handshake.append("message", "connection limit reached");
+								ArrayList<Document> peers = new ArrayList<Document>();
+								for (Socket s : Socketlist) {
+									HostPort hostport = new HostPort(s.getInetAddress().toString(), s.getPort());
+									peers.add(hostport.toDoc());
+								}
+								handshake.append("peers", peers);
+
+								out.write(handshake.toJson() + "\n");
+								out.flush();
 							}
-							else {
-								Document received = Document.parse(clientMsg);
-								if (received.get("command").equals("HANDSHAKE_REQUEST")) {
-									System.out.println("HandShake Request Accepted by Server");
-									System.out.println("HandSacke Response Sent");
-									if (Socketlist.size() <= 10) {
-										Document handshake = new Document();
-										handshake.append("command", "HANDSHAKE_RESPONSE");
-										HostPort hostport = new HostPort(ip, port);
-										handshake.append("hostPort", hostport.toDoc());
-										out.write(handshake.toJson() + "\n");
-										out.flush();
-										Peer.sync();
-									} else {
-										Socketlist.remove(10);
-										Document handshake = new Document();
-										handshake.append("command", "CONNECTION_REFUSED");
-										handshake.append("message", "connection limit reached");
-										ArrayList<Document> peers = new ArrayList<Document>();
-										for (Socket s : Socketlist) {
-											HostPort hostport = new HostPort(s.getInetAddress().toString(), s.getPort());
-											peers.add(hostport.toDoc());
-										}
-										handshake.append("peers", peers);
+						} else {
+							if (Peer.operation(received).contains("longgenb1995")) {
 
-										out.write(handshake.toJson()+"\n");
-										out.flush();
-									}
-								} else {
-									if(Peer.operation(received).contains("longgenb1995")){
+								String[] message = new String[2];
+								message[0] = Peer.operation(received).split("longgenb1995")[0];
+								message[1] = Peer.operation(received).split("longgenb1995")[1];
 
-										String[] message = new String[2];
-										message[0] = Peer.operation(received).split("longgenb1995")[0];
-										message[1] = Peer.operation(received).split("longgenb1995")[1];
+								Document received1 = Document.parse(message[0]);
+								Document received2 = Document.parse(message[1]);
+								System.out.println(message[0]);
+								System.out.println(message[1]);
 
-										Document received1 = Document.parse(message[0]);
-										Document received2 = Document.parse(message[1]);
-										System.out.println(message[0]);
-										System.out.println(message[1]);
+								out.write(received1.toJson() + "\n");
+								out.write(received2.toJson() + "\n");
+								out.flush();
 
-										out.write(received1.toJson()+"\n");
-										out.write(received2.toJson()+"\n");
-										out.flush();
+							} else {
 
-									}
-									else {
-
-										if(Peer.operation(received)!= "nothing") {
-											System.out.println("SERVER: " + Peer.operation((received)) + "\n");
-											out.write(Peer.operation(received) + "\n");
-											out.flush();
-										}
-									}
+								if (!Peer.operation(received).equals("nothing")) {
+									System.out.println("SERVER: " + Peer.operation((received)) + "\n");
+									out.write(Peer.operation(received) + "\n");
+									out.flush();
 								}
 							}
+						}
+					}
 
 
-                    }
-            }
-            
+				}
+			}
+
+		}catch(SocketException e){
+			System.out.println(Socketlist.toString());
+
+			System.out.println("client off line");
+
 		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}

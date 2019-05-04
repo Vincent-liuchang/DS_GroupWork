@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import unimelb.bitbox.util.Configuration;
@@ -16,7 +17,7 @@ import unimelb.bitbox.util.FileSystemManager;
 
 public class Peer
 {
-    static private ServerMain mainServer;
+    static protected ServerMain mainServer;
     private static Logger log = Logger.getLogger(Peer.class.getName());
     private static boolean createOrModify;    // true = create    false = modify
 
@@ -47,22 +48,28 @@ public class Peer
     }
 
     public static void sync(){
-        try{
-            Thread t = new Thread(() -> mainServer.initialSync());
-            t.start();
-            Thread.sleep(Long.parseLong(Configuration.getConfigurationValue("syncInterval")));
+        try{  
+            
+           Synchronize syn = new Synchronize(mainServer);
+           syn.start();
+            
+
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
+    public String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
             // receive command = handshake_response, from client
-            Peer.sync();
+           Synchronize syn = new Synchronize(mainServer);
+           syn.start();
             return "ok";
-        }else {
-            Response r = new Response(received_document);
+        }
+        else {
+           try{ 
+               Response r = new Response(received_document);
+           
             String command = received_document.getString("command");
 
             if(command.contains("REQUEST")) {
@@ -70,7 +77,7 @@ public class Peer
 
                     if(r.pathSafe(received_document) && !r.nameExist(received_document)){
 
-                        r.message = "file loader ready";
+                        r.message = "create file loader ready";
                         r.status = true;
 
 
@@ -78,32 +85,39 @@ public class Peer
                         r.length = r.fd.getLong("fileSize");
 
                         createOrModify = true;
+                        
+                        System.out.println(r.message);
 
                         return r.createMessage() + "longgenb1995" + r.fileByteRequest();
 
                     }else{
-                        r.message = "file loader not ready";
+                        r.message = "create file loader not ready";
                         r.status = false;
-
+                        
+                        System.out.println(r.message);
                         return r.createMessage();
                     }
                 }else if (command.equals("FILE_MODIFY_REQUEST")) {
 
                     if(r.pathSafe(received_document) && r.nameExist(received_document)){
 
-                        r.message = "file loader ready";
+                        r.message = "modify file loader ready";
                         r.status = true;
 
                         r.position = 0;
                         r.length = r.fd.getLong("fileSize");
 
                         createOrModify = false;
+                        
+                        System.out.println(r.message);
 
                         return r.createMessage() + "longgenb1995" + r.fileByteRequest();
 
                     }else{
                         r.message = "file loader not ready";
                         r.status = false;
+                        
+                        System.out.println(r.message);
 
                         return r.createMessage();
                     }
@@ -123,6 +137,8 @@ public class Peer
                     r.content = bf;
                     r.message = "successfully read";
                     r.status = true;
+                    
+                    System.out.println(r.message);
                     return r.fileByteResponse();
 
                 }else if (command.equals("FILE_DELETE_REQUEST")) {
@@ -141,10 +157,11 @@ public class Peer
                         r.message = "file delete failed";
 
                     }
+                    
+                    System.out.println(r.message);
                     return r.fileDeleteResponse();
                 }else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
-                    if(r.pathSafe(received_document) &&
-                            !ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))) {
+                    if(!ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))) {
 
                         ServerMain.fileSystemManager.makeDirectory(received_document.getString("pathName"));
                         r.message = "directory create succeed";
@@ -153,6 +170,7 @@ public class Peer
                         r.message = "directory create failed";
                         r.status = false;
                     }
+                    System.out.println(r.message);
                     return r.directoryCreateResponse();
 
                 }else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
@@ -168,11 +186,15 @@ public class Peer
                         r.message = "directory delete failed";
                         r.status = false;
                     }
+                    
+                    System.out.println(r.message);
                     return r.directoryCreateResponse();
                 }else{
 
                     r.message = "message must contain a command field as string";
-
+                      System.out.println("invalid protocol is " + command);
+                      
+                    System.out.println(r.message);
                     return r.invalidProtocol();
                 }
 
@@ -240,25 +262,30 @@ public class Peer
 
                 }else if(command.equals("FILE_DELETE_RESPONSE") ||
                         command.equals("FILE_MODIFY_RESPONSE") ||
+                        command.equals("FILE_CREATE_RESPONSE") ||
                         command.equals("DIRECTORY_CREATE_RESPONSE") ||
                         command.equals("DIRECTORY_DELETE_RESPONSE") ){
-
+   
                     return "ok";
 
                 }else{
                     r.message = "message must contain a command field as string";
-
+                    System.out.println("invalid protocol is " + command);
+                    System.out.println(r.message);
                     return r.invalidProtocol();
                 }
 
                 }else{
                 r.message = "message must contain a command field as string";
-
+                 System.out.println("invalid protocol is " + command);
+                 System.out.println(r.message);
                 return r.invalidProtocol();
             }
             }
-        
+        catch (ClassCastException e){
+		return "ok";
+           } 
         }
     }
-
+}
 

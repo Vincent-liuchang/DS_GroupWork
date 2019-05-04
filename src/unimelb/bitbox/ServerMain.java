@@ -26,9 +26,12 @@ public class ServerMain implements FileSystemObserver {
 
 	}
 
-	public void initialSync() {
-		for(FileSystemManager.FileSystemEvent event: ServerMain.fileSystemManager.generateSyncEvents())
+	public void initialSync() throws InterruptedException {
+		for(FileSystemManager.FileSystemEvent event: ServerMain.fileSystemManager.generateSyncEvents()) {
+                        System.out.println("synchronized events is:" + event);
 			processFileSystemEvent(event);
+                }
+                initialSync();
 	}
 
 	@Override

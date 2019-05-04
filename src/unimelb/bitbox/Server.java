@@ -98,7 +98,7 @@ public class Server extends Thread{
 						Document received = Document.parse(clientMsg);
 						if (received.get("command").equals("HANDSHAKE_REQUEST")) {
 							System.out.println("HandShake Request Accepted by Server");
-							System.out.println("HandSacke Response Sent");
+
 							if (Socketlist.size() <= Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))) {
 								Document handshake = new Document();
 								handshake.append("command", "HANDSHAKE_RESPONSE");
@@ -106,7 +106,11 @@ public class Server extends Thread{
 								handshake.append("hostPort", hostport.toDoc());
 								out.write(handshake.toJson() + "\n");
 								out.flush();
-								Peer.sync();
+								System.out.println(handshake.toJson());
+								System.out.println("HandShake Response Sent"+"\n");
+
+								Synchronize syn1 = new Synchronize(Peer.mainServer);
+								syn1.start();
 							} else {
 								Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));
 								Document handshake = new Document();
@@ -123,11 +127,11 @@ public class Server extends Thread{
 								out.flush();
 							}
 						} else {
-							if (Peer.operation(received).contains("longgenb1995")) {
+							if (new Peer().operation(received).contains("longgenb1995")) {
 
 								String[] message = new String[2];
-								message[0] = Peer.operation(received).split("longgenb1995")[0];
-								message[1] = Peer.operation(received).split("longgenb1995")[1];
+								message[0] = new Peer().operation(received).split("longgenb1995")[0];
+								message[1] = new Peer().operation(received).split("longgenb1995")[1];
 
 								Document received1 = Document.parse(message[0]);
 								Document received2 = Document.parse(message[1]);
@@ -138,9 +142,9 @@ public class Server extends Thread{
 
 							} else {
 
-								if (!Peer.operation(received).equals("ok")) {
-									System.out.println("Server received from client: " + Peer.operation((received)) + "\n");
-									out.write(Peer.operation(received) + "\n");
+								if (!new Peer().operation(received).equals("ok")) {
+									System.out.println("Server received from client: " + new Peer().operation((received)) + "\n");
+									out.write(new Peer().operation(received) + "\n");
 									out.flush();
 								}
 							}

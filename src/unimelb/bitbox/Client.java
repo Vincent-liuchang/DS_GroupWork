@@ -56,7 +56,7 @@ public class Client extends Thread {
 	            //While the user input differs from "exit"
 	            while ((received = in.readLine()) !=null) {
 	                // Receive the reply from the server by reading from the socket input stream
-	                received = in.readLine(); // This method blocks until there
+	                // This method blocks until there
 					received = received+ "\n";
 					System.out.print("Clients received from Server: " + received +"\n");
 
@@ -64,11 +64,11 @@ public class Client extends Thread {
 						Document received_message = Document.parse(received);
 
 
-						if(Peer.operation(received_message).contains("longgenb1995")){
+						if(new Peer().operation(received_message).contains("longgenb1995")){
 
 							String[] message = new String[2];
-							message[0] = Peer.operation(received_message).split("longgenb1995")[0];
-							message[1] = Peer.operation(received_message).split("longgenb1995")[1];
+							message[0] = new Peer().operation(received_message).split("longgenb1995")[0];
+							message[1] = new Peer().operation(received_message).split("longgenb1995")[1];
 
 							Document received1 = Document.parse(message[0]);
 							Document received2 = Document.parse(message[1]);
@@ -79,8 +79,13 @@ public class Client extends Thread {
 
 						}
 						else {
-							if(!Peer.operation(received_message).equals("ok")) {
-								out.write(Peer.operation(received_message) + "\n");
+							if(new Peer().operation(received_message).equals("HandShakeComplete")){
+								System.out.println("HandShake Response Received");
+								Synchronize syn = new Synchronize(Peer.mainServer);
+								syn.start();
+							}
+							if(!new Peer().operation(received_message).equals("ok")) {
+								out.write(new Peer().operation(received_message) + "\n");
 								out.flush();
 							}
 						}

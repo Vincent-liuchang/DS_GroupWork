@@ -27,8 +27,10 @@ public class ServerMain implements FileSystemObserver {
 	}
 
 	public void initialSync() {
-		for(FileSystemManager.FileSystemEvent event: ServerMain.fileSystemManager.generateSyncEvents())
+		for(FileSystemManager.FileSystemEvent event: ServerMain.fileSystemManager.generateSyncEvents()){
+			System.out.println("sync event is: "+ event);
 			processFileSystemEvent(event);
+		}
 	}
 
 	@Override

@@ -48,9 +48,10 @@ public class Peer
 
     public static void sync(){
         try{
+
             Thread t = new Thread(() -> mainServer.initialSync());
-            t.start();
-            Thread.sleep(Long.parseLong(Configuration.getConfigurationValue("syncInterval")));
+                t.run();
+
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -70,41 +71,42 @@ public class Peer
 
                     if(r.pathSafe(received_document) && !r.nameExist(received_document)){
 
-                        r.message = "file loader ready";
+                        r.message = "create file loader ready";
                         r.status = true;
-
 
                         r.position = 0;
                         r.length = r.fd.getLong("fileSize");
-
                         createOrModify = true;
 
+                        System.out.println(r.message);
                         return r.createMessage() + "longgenb1995" + r.fileByteRequest();
 
                     }else{
-                        r.message = "file loader not ready";
+                        r.message = "create file loader not ready";
                         r.status = false;
 
+                        System.out.println(r.message);
                         return r.createMessage();
                     }
                 }else if (command.equals("FILE_MODIFY_REQUEST")) {
 
                     if(r.pathSafe(received_document) && r.nameExist(received_document)){
 
-                        r.message = "file loader ready";
+                        r.message = "modify file loader ready";
                         r.status = true;
 
                         r.position = 0;
                         r.length = r.fd.getLong("fileSize");
-
                         createOrModify = false;
 
+                        System.out.println(r.message);
                         return r.createMessage() + "longgenb1995" + r.fileByteRequest();
 
                     }else{
-                        r.message = "file loader not ready";
+                        r.message = "modify file loader not ready";
                         r.status = false;
 
+                        System.out.println(r.message);
                         return r.createMessage();
                     }
                 }
@@ -123,6 +125,8 @@ public class Peer
                     r.content = bf;
                     r.message = "successfully read";
                     r.status = true;
+
+                    System.out.println(r.message);
                     return r.fileByteResponse();
 
                 }else if (command.equals("FILE_DELETE_REQUEST")) {
@@ -136,9 +140,11 @@ public class Peer
                         r.status = true;
                         r.message = "file delete succeed";
 
+                        System.out.println(r.message);
                     }else{
                         r.status = false;
                         r.message = "file delete failed";
+                        System.out.println(r.message);
 
                     }
                     return r.fileDeleteResponse();
@@ -149,9 +155,11 @@ public class Peer
                         ServerMain.fileSystemManager.makeDirectory(received_document.getString("pathName"));
                         r.message = "directory create succeed";
                         r.status = true;
+                        System.out.println(r.message);
                     }else{
                         r.message = "directory create failed";
                         r.status = false;
+                        System.out.println(r.message);
                     }
                     return r.directoryCreateResponse();
 
@@ -164,15 +172,17 @@ public class Peer
                         ServerMain.fileSystemManager.deleteDirectory(received_document.getString("pathName"));
                         r.message = "directory delete succeed";
                         r.status = true;
+                        System.out.println(r.message);
                     }else{
                         r.message = "directory delete failed";
                         r.status = false;
+                        System.out.println(r.message);
                     }
                     return r.directoryCreateResponse();
                 }else{
 
                     r.message = "message must contain a command field as string";
-
+                    System.out.println("INVALID Protocal:" + r.message);
                     return r.invalidProtocol();
                 }
 
@@ -241,19 +251,20 @@ public class Peer
                 }else if(command.equals("FILE_DELETE_RESPONSE") ||
                         command.equals("FILE_MODIFY_RESPONSE") ||
                         command.equals("DIRECTORY_CREATE_RESPONSE") ||
-                        command.equals("DIRECTORY_DELETE_RESPONSE") ){
+                        command.equals("DIRECTORY_DELETE_RESPONSE") ||
+                        command.equals("FILE_CREATE_RESPONSE") ){
 
                     return "ok";
 
                 }else{
                     r.message = "message must contain a command field as string";
-
+                    System.out.println("INVALID Protocal is:" + command);
                     return r.invalidProtocol();
                 }
 
                 }else{
                 r.message = "message must contain a command field as string";
-
+                System.out.println("INVALID Protocal is:" + command);
                 return r.invalidProtocol();
             }
             }

@@ -168,6 +168,8 @@ public class Server extends Thread{
 				try {
 					BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
 					BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
+					System.out.println("Server send to Clients:" + message);
+
 					out.write(message+"\n");
 					out.flush();
 				} catch (IOException e) {

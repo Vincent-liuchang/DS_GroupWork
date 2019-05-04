@@ -73,23 +73,21 @@ public class Peer
             if(command.contains("REQUEST")) {
                 if (command.equals("FILE_CREATE_REQUEST")) {
 
-                    if(r.pathSafe(received_document) && !r.nameExist(received_document)){
-
+                    if(r.pathSafe(received_document)){
+//                        && !r.nameExist(received_document)
                         r.message = "create file loader ready";
                         r.status = true;
-
 
                         r.position = 0;
                         r.length = r.fd.getLong("fileSize");
 
                         createOrModify = true;
-                        
+
                         System.out.println(r.message);
 
                         return r.createMessage() + "longgenb1995" + r.fileByteRequest();
-
                     }else{
-                        r.message = "create file loader not ready";
+                        r.message = "path not safe";
                         r.status = false;
                         
                         System.out.println(r.message);
@@ -201,33 +199,65 @@ public class Peer
 
                 if(command.equals("FILE_BYTES_RESPONSE")){
 
-
                     if(createOrModify){
-                        String content = received_document.getString("content");
+                        if(r.nameExist(received_document)){
+                            createOrModify = false;
+                            String content = received_document.getString("content");
 
-                        ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
+                            ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
 
+                            if(ServerMain.fileSystemManager.modifyFileLoader(
+                                    received_document.getString("pathName"),
+                                    r.fd.getString("md5"),
+                                    r.fd.getLong("lastModified"))) {
 
-                        ServerMain.fileSystemManager.createFileLoader(
-                                received_document.getString("pathName"),
-                                r.fd.getString("md5"),
-                                received_document.getLong("length"),
-                                r.fd.getLong("lastModified"));
+                                ServerMain.fileSystemManager.writeFile(
+                                        received_document.getString("pathName"),
+                                        bf,
+                                        received_document.getLong("position"));
 
-                        ServerMain.fileSystemManager.writeFile(
-                                received_document.getString("pathName"),
-                                bf,
-                                received_document.getLong("position"));
+                                if (ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))) {
+                                    return "ok";
+                                } else {
 
-                        if(ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))){
-                            return "ok";
-                        }else{
+                                    ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
 
-                            ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
+                                    r.position = 0;
+                                    r.length = r.fd.getLong("fileSize");
+                                    return r.fileByteRequest();
+                                }
+                            }
+                            else{
+                                return "ok";
+                            }
+                        }
+                        else {
+                            String content = received_document.getString("content");
 
-                            r.position = 0;
-                            r.length = r.fd.getLong("fileSize");
-                            return r.fileByteRequest();
+                            ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
+
+                            ServerMain.fileSystemManager.createFileLoader(
+                                    received_document.getString("pathName"),
+                                    r.fd.getString("md5"),
+                                    received_document.getLong("length"),
+                                    r.fd.getLong("lastModified"));
+
+                            ServerMain.fileSystemManager.writeFile(
+                                    received_document.getString("pathName"),
+                                    bf,
+                                    received_document.getLong("position"));
+
+                            if (ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))) {
+                                return "ok";
+
+                            } else {
+
+                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
+
+                                r.position = 0;
+                                r.length = r.fd.getLong("fileSize");
+                                return r.fileByteRequest();
+                            }
                         }
 
                     }else{

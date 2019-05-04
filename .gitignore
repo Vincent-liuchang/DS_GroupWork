@@ -2,3 +2,4 @@ share
 configuration.properties
 out
 .idea
+.DS_Store

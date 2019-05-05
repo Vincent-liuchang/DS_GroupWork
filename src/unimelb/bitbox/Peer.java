@@ -34,7 +34,7 @@ public class Peer
     private int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));
     private String [] peerstring = Configuration.getConfigurationValue("peers").split(" ");
     private ArrayList<String> peers = new ArrayList<String>(Arrays.asList(peerstring));
-    private Client client = new Client(peers, 8111);
+    private Client client = new Client(peers, port);
     private Server server = new Server(port);;
 
     public  void start(){

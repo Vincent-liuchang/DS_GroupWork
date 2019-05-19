@@ -62,7 +62,7 @@ public class Peer
     public String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
             // receive command = handshake_response, from client
-            return "HandShakeComplete";
+            return "ok";
         }
         else {
            try{ 

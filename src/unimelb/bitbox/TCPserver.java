@@ -17,7 +17,7 @@ import unimelb.bitbox.util.Configuration;
 import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.HostPort;
 
-public class Server extends Thread{
+public class TCPserver extends Thread{
 
 	private String ip;
 	// Declare the port number
@@ -27,7 +27,7 @@ public class Server extends Thread{
 	
 	private ArrayList<Socket> Socketlist = new ArrayList<Socket>();
 	
-	public Server(int port){
+	public TCPserver(int port){
 		this.port = port;
 	}
 	
@@ -52,7 +52,7 @@ public class Server extends Thread{
 				Socketlist.add(client);
 				System.out.println("Now the server has " + Socketlist.size() + " clients"+"\n");
 
-				System.out.println("Client "+counter+": Applying for connection!"+"\n");
+				System.out.println("TCPclient "+counter+": Applying for connection!"+"\n");
 				
 				
 				// Start a new thread for a connection
@@ -97,7 +97,7 @@ public class Server extends Thread{
 					} else {
 						Document received = Document.parse(clientMsg);
 						if (received.get("command").equals("HANDSHAKE_REQUEST")) {
-							System.out.println("HandShake Request Accepted by Server");
+							System.out.println("HandShake Request Accepted by TCPserver");
 
 							if (Socketlist.size() <= Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))) {
 								Document handshake = new Document();
@@ -143,7 +143,7 @@ public class Server extends Thread{
 							} else {
 
 								if (!new Peer().operation(received).equals("ok")) {
-									System.out.println("Server received from client: " + new Peer().operation((received)) + "\n");
+									System.out.println("TCPserver received from client: " + new Peer().operation((received)) + "\n");
 									out.write(new Peer().operation(received) + "\n");
 									out.flush();
 								}
@@ -172,7 +172,7 @@ public class Server extends Thread{
 				try {
 					BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
 					BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
-					System.out.println("Server send to Clients:" + message);
+					System.out.println("TCPserver send to Clients:" + message);
 
 					out.write(message+"\n");
 					out.flush();

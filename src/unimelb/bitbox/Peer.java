@@ -1,19 +1,15 @@
 package unimelb.bitbox;
 
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import unimelb.bitbox.util.Configuration;
 import unimelb.bitbox.util.Document;
-import unimelb.bitbox.util.FileSystemManager;
 
 public class Peer
 {
@@ -34,17 +30,17 @@ public class Peer
     private int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));
     private String [] peerstring = Configuration.getConfigurationValue("peers").split(" ");
     private ArrayList<String> peers = new ArrayList<String>(Arrays.asList(peerstring));
-    private Client client = new Client(peers, port);
-    private Server server = new Server(port);;
+    private TCPclient TCPclient = new TCPclient(peers, port);
+    private TCPserver TCPserver = new TCPserver(port);;
 
     public  void start(){
-        client.start();
-        server.start();
+        TCPclient.start();
+        TCPserver.start();
     }
 
     public  void sentToOtherPeers(String message){
-        client.sendtoServer(message);
-        server.sendtoClient(message);
+        TCPclient.sendtoServer(message);
+        TCPserver.sendtoClient(message);
     }
 
     public static void sync(){
@@ -61,7 +57,7 @@ public class Peer
 
     public String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
-            // receive command = handshake_response, from client
+            // receive command = handshake_response, from TCPclient
             return "ok";
         }
         else {

@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 import javax.sql.ConnectionEvent;
 
-public class Client extends Thread {
+public class TCPclient extends Thread {
 	
 	// IP and port
 	private String ip;
@@ -28,7 +28,7 @@ public class Client extends Thread {
 	private ArrayList<String> iplist = new ArrayList<String>();
 	private Socket socket;
 	
-	public Client(ArrayList<String> iplist, int port){
+	public TCPclient(ArrayList<String> iplist, int port){
 
 		this.iplist = iplist;
 		this.ip = iplist.get(0);
@@ -58,7 +58,7 @@ public class Client extends Thread {
 	                // Receive the reply from the server by reading from the socket input stream
 	                // This method blocks until there
 					received = received+ "\n";
-					System.out.print("Clients received from Server: " + received +"\n");
+					System.out.print("Clients received from TCPserver: " + received +"\n");
 
 					if(received.contains("_")){
 						Document received_message = Document.parse(received);
@@ -110,7 +110,7 @@ public class Client extends Thread {
 			}
 		}
 		catch (SocketException  e) {
-			System.out.println("Server off line");
+			System.out.println("TCPserver off line");
 			try {
 				this.socket.close();
 			} catch (IOException ex) {
@@ -142,7 +142,7 @@ public class Client extends Thread {
 
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
-				System.out.println("Client send to Server: " + message);
+				System.out.println("TCPclient send to TCPserver: " + message);
 
                 out.write(message+"\n");
                 out.flush();

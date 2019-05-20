@@ -57,7 +57,6 @@ public class TCPclient extends Thread {
 	            while ((received = in.readLine()) !=null) {
 	                // Receive the reply from the server by reading from the socket input stream
 	                // This method blocks until there
-					received = received+ "\n";
 					System.out.print("Clients received from TCPserver: " + received +"\n");
 
 					if(received.contains("_")){
@@ -84,7 +83,7 @@ public class TCPclient extends Thread {
 								Synchronize syn = new Synchronize(Peer.mainServer);
 								syn.start();
 							}
-							if(!new Peer().operation(received_message).equals("ok")) {
+							else if(!new Peer().operation(received_message).equals("ok")) {
 								out.write(new Peer().operation(received_message) + "\n");
 								out.flush();
 							}

@@ -30,38 +30,52 @@ public class Peer
     private int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));
     private String [] peerstring = Configuration.getConfigurationValue("peers").split(" ");
     private ArrayList<String> peers = new ArrayList<String>(Arrays.asList(peerstring));
-    private TCPclient TCPclient = new TCPclient(peers, port);
-    private TCPserver TCPserver = new TCPserver(port);;
+    private String mode = Configuration.getConfigurationValue("mode");
+    private TCPclient TCPclient;
+    private TCPserver TCPserver;
+    private UDPclient UDPclient;
+    private UDPserver UDPserver;
+
 
     public  void start(){
-        TCPclient.start();
-        TCPserver.start();
+        if(mode.equals("TCP")){
+            TCPclient = new TCPclient(peers, port);
+            TCPserver = new TCPserver(port);
+
+            TCPclient.start();
+            TCPserver.start();
+        }
+        else{
+            UDPserver = new UDPserver(port);
+            UDPclient = new UDPclient(peers,port);
+
+            UDPclient.start();
+            UDPserver.start();
+        }
+
     }
 
     public  void sentToOtherPeers(String message){
-        TCPclient.sendtoServer(message);
-        TCPserver.sendtoClient(message);
-    }
 
-    public static void sync(){
-        try{  
-            
-           Synchronize syn = new Synchronize(mainServer);
-           syn.start();
-            
-
-        } catch(Exception e) {
-            e.printStackTrace();
+        if(mode.equals("TCP")){
+            TCPclient.sendtoServer(message);
+            TCPserver.sendtoClient(message);
         }
+        else{
+            UDPclient.sendtoServer(message);
+//            UDPserver.sendtoClient(message);
+        }
+
     }
+
 
     public String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
         if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
             // receive command = handshake_response, from TCPclient
-            return "ok";
+            return "HandShakeComplete";
         }
         else {
-           try{ 
+
                Response r = new Response(received_document);
            
             String command = received_document.getString("command");
@@ -70,7 +84,6 @@ public class Peer
                 if (command.equals("FILE_CREATE_REQUEST")) {
 
                     if(r.pathSafe(received_document)){
-//                        && !r.nameExist(received_document)
                         r.message = "create file loader ready";
                         r.status = true;
 
@@ -124,7 +137,6 @@ public class Peer
 
 
                     String bf = Base64.getEncoder().encodeToString(byteBuffer.array());
-//                    String bf = new String(byteBuffer.array());
 
                     r.content = bf;
                     r.message = "successfully read";
@@ -305,10 +317,7 @@ public class Peer
                  System.out.println(r.message);
                 return r.invalidProtocol();
             }
-            }
-        catch (ClassCastException e){
-		return "ok";
-           } 
+
         }
     }
 }

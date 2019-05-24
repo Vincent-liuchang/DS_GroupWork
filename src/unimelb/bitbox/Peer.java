@@ -93,21 +93,22 @@ public class Peer
                         r.position = 0;
                         long length = r.fd.getLong("fileSize");
                         int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
-                        System.out.println("size is"+ blocksize);
+                        System.out.println("blocksize is"+ blocksize);
                         String returnMessage = r.createMessage();
 
                         long i = length/blocksize + 1;
+
+                        System.out.println(received_document.getString("fileDescriptor"));
 
                         for(int j = 0; j<(int)i ; j++){
                             r.position = j * blocksize;
                             r.length = Math.min(blocksize,length-j*blocksize);
                             returnMessage += "longgenb1995";
                             returnMessage += r.fileByteRequest();
-                            System.out.println("generate"+(j+1)+"file byte request, position is"+r.position+"length is:"+r.length);
+                            System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
                         }
 
                         createOrModify = true;
-
                         return returnMessage;
                     }else{
                         r.message = "file create request received and path not safe";
@@ -225,6 +226,7 @@ public class Peer
 
                     if(createOrModify){
                         if(r.nameExist(received_document)){
+                            System.out.println("不该来着吧");
                             createOrModify = false;
                             String content = received_document.getString("content");
 
@@ -260,13 +262,14 @@ public class Peer
 
                             ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
 
-                            if(received_document.getLong("position") == 0) {
-                                ServerMain.fileSystemManager.createFileLoader(
-                                        received_document.getString("pathName"),
-                                        r.fd.getString("md5"),
-                                        received_document.getLong("length"),
-                                        r.fd.getLong("lastModified"));
-                            }
+
+                                if(received_document.getLong("position") == 0) {
+                                    ServerMain.fileSystemManager.createFileLoader(
+                                            received_document.getString("pathName"),
+                                            r.fd.getString("md5"),
+                                            received_document.getLong("length"),
+                                            r.fd.getLong("lastModified"));
+                                }
 
                             ServerMain.fileSystemManager.writeFile(
                                     received_document.getString("pathName"),
@@ -281,6 +284,9 @@ public class Peer
                                 return "ok";
                             }
                             else{
+                                System.out.println("这是最后一个么?");
+
+                                System.out.println(received_document.getString("fileDescriptor"));
 //                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
 //                                return r.fileByteRequest();
                                 return "ok";

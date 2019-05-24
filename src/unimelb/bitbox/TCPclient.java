@@ -58,7 +58,7 @@ public class TCPclient extends Thread {
 	            while ((received = in.readLine()) !=null) {
 	                // Receive the reply from the server by reading from the socket input stream
 	                // This method blocks until there
-					System.out.print("Clients received from TCPserver: " + received +"\n");
+//					System.out.print("Clients received from TCPserver: " + received +"\n");
 
 					if(received.contains("_")){
 						Document received_message = Document.parse(received);
@@ -77,7 +77,7 @@ public class TCPclient extends Thread {
 						}
 						else {
 							if(new Peer().operation(received_message).equals("HandShakeComplete")){
-								System.out.println("HandShake Response Received, the server is" + received_message.get("hostPort"));
+								System.out.println("HandShake Response Received, the server is" + ip);
 //								Synchronize syn = new Synchronize(Peer.mainServer);
 //								syn.start();
 							}

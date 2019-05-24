@@ -23,9 +23,9 @@ public class ServerMain implements FileSystemObserver {
 
 		peer.start();
 
-
-		Synchronize syn = new Synchronize(this);
-		syn.start();
+//
+//		Synchronize syn = new Synchronize(this);
+//		syn.start();
 
 	}
 

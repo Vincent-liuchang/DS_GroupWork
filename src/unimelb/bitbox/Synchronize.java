@@ -7,6 +7,8 @@ package unimelb.bitbox;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import unimelb.bitbox.util.Configuration;
 import unimelb.bitbox.util.FileSystemManager;
 
 /**
@@ -27,7 +29,7 @@ public class Synchronize extends Thread{
 			mainServer.processFileSystemEvent(event);
         }
         try {
-            Thread.sleep(60*1000);
+            Thread.sleep(60 *1000);
             run();
         } catch (InterruptedException ex) {
             Logger.getLogger(Synchronize.class.getName()).log(Level.SEVERE, null, ex);

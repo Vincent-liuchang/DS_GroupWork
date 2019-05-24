@@ -102,6 +102,7 @@ public class Peer
                             r.length = Math.min(blocksize,length-j*blocksize);
                             returnMessage += "longgenb1995";
                             returnMessage += r.fileByteRequest();
+                            System.out.println("generate"+j+"file byte request, position is"+r.position);
                         }
 
                         createOrModify = true;

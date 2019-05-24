@@ -41,9 +41,10 @@ public class Peer
         if(mode.equals("TCP")){
             TCPclient = new TCPclient(peers, port);
             TCPserver = new TCPserver(port);
-
-            TCPclient.start();
             TCPserver.start();
+            if(!peerstring[0] .equals("")) {
+                TCPclient.start();
+            }
         }
         else{
             UDPserver = new UDPserver(port);
@@ -85,10 +86,10 @@ public class Peer
 
                     if(r.pathSafe(received_document)){
 
-                        r.message = "create file loader ready";
+                        r.message = "File Create request received and byte buffer request sent";
                         r.status = true;
 
-                        int position = 0;
+                        r.position = 0;
                         long length = r.fd.getLong("fileSize");
                         int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
                         String returnMessage = r.createMessage();
@@ -104,14 +105,12 @@ public class Peer
 
                         createOrModify = true;
 
-                        System.out.println(r.message);
-
                         return returnMessage;
                     }else{
-                        r.message = "path not safe";
+                        r.message = "file create request received and path not safe";
                         r.status = false;
-                        
                         System.out.println(r.message);
+
                         return r.createMessage();
                     }
                 }else if (command.equals("FILE_MODIFY_REQUEST")) {
@@ -153,8 +152,10 @@ public class Peer
                     r.content = bf;
                     r.message = "successfully read";
                     r.status = true;
+                    r.position = (int)received_document.getLong("position");
+                    r.length = received_document.getLong("length");
                     
-                    System.out.println(r.message);
+                    System.out.println("received a file byte request" + "Position:" + r.position);
                     return r.fileByteResponse();
 
                 }else if (command.equals("FILE_DELETE_REQUEST")) {
@@ -256,7 +257,7 @@ public class Peer
 
                             ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
 
-                            if(r.position == 0) {
+                            if(received_document.getLong("position") == 0) {
                                 ServerMain.fileSystemManager.createFileLoader(
                                         received_document.getString("pathName"),
                                         r.fd.getString("md5"),

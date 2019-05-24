@@ -39,7 +39,9 @@ public class TCPclient extends Thread {
 		try{
 
 			String received = null;
+
 			Socket socket = new Socket(ip, port);
+			System.out.println("123456"+ip+" "+port);
 				this.socket = socket;
 				//Get the input/output streams for reading/writing data from/to the socket
 	            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));

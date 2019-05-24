@@ -69,16 +69,9 @@ public class TCPclient extends Thread {
 
 							for(String m : message){
 								Document receive = Document.parse(m);
-								out.write(receive.toJson());
+								out.write(receive.toJson()+"\n");
 								out.flush();
 							}
-
-							Document received1 = Document.parse(message[0]);
-							Document received2 = Document.parse(message[1]);
-
-							out.write(received1.toJson()+"\n");
-							out.write(received2.toJson()+"\n");
-							out.flush();
 
 						}
 						else {

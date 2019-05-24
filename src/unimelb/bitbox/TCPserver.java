@@ -127,20 +127,17 @@ public class TCPserver extends Thread{
 								out.flush();
 							}
 						} else {
-							if (new Peer().operation(received).contains("longgenb1995")) {
+							if(new Peer().operation(received).contains("longgenb1995")){
 
-								String[] message = new String[2];
-								message[0] = new Peer().operation(received).split("longgenb1995")[0];
-								message[1] = new Peer().operation(received).split("longgenb1995")[1];
+								String[] message = new Peer().operation(received).split("longgenb1995");
 
-								Document received1 = Document.parse(message[0]);
-								Document received2 = Document.parse(message[1]);
+								for(String m : message){
+									Document receive = Document.parse(m);
+									out.write(receive.toJson()+"\n");
+									out.flush();
+								}
 
-								out.write(received1.toJson() + "\n");
-								out.write(received2.toJson() + "\n");
-								out.flush();
-
-							} else {
+							}else {
 
 								if (!new Peer().operation(received).equals("ok")) {
 									System.out.println("TCPserver received from client: " + new Peer().operation((received)) + "\n");

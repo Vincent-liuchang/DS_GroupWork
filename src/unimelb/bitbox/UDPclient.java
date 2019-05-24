@@ -27,7 +27,7 @@ public class UDPclient extends Thread {
     @Override
     public void run() {
         try {
-            byte[] buffer = new byte[1000];
+            byte[] buffer = new byte[8192];
             DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
             System.out.println("Local clients ready for accept");
             clientSocket.receive(reply);
@@ -39,7 +39,7 @@ public class UDPclient extends Thread {
 
             if(response.contains("longgenb1995")){
                 String response1 = response.split("longgenb1995")[0];
-                String response2 = response.split("longgenb1995")[0];
+                String response2 = response.split("longgenb1995")[1];
                 byte[] buf1 = response1.getBytes();
                 DatagramPacket request1 = new DatagramPacket(buf1,buf1.length,host,port);
                 clientSocket.send(request1);

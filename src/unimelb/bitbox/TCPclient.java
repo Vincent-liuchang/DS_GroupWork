@@ -65,9 +65,13 @@ public class TCPclient extends Thread {
 
 						if(new Peer().operation(received_message).contains("longgenb1995")){
 
-							String[] message = new String[2];
-							message[0] = new Peer().operation(received_message).split("longgenb1995")[0];
-							message[1] = new Peer().operation(received_message).split("longgenb1995")[1];
+							String[] message = new Peer().operation(received_message).split("longgenb1995");
+
+							for(String m : message){
+								Document receive = Document.parse(m);
+								out.write(receive.toJson());
+								out.flush();
+							}
 
 							Document received1 = Document.parse(message[0]);
 							Document received2 = Document.parse(message[1]);

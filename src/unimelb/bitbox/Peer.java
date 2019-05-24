@@ -84,17 +84,29 @@ public class Peer
                 if (command.equals("FILE_CREATE_REQUEST")) {
 
                     if(r.pathSafe(received_document)){
+
                         r.message = "create file loader ready";
                         r.status = true;
 
-                        r.position = 0;
-                        r.length = r.fd.getLong("fileSize");
+                        int position = 0;
+                        long length = r.fd.getLong("fileSize");
+                        int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
+                        String returnMessage = r.createMessage();
+
+                        long i = length/blocksize + 1;
+
+                        for(int j = 0; j<(int)i ; j++){
+                            r.position = j * blocksize;
+                            r.length = Math.min(blocksize,length-j*blocksize);
+                            returnMessage += "longgenb1995";
+                            returnMessage += r.fileByteRequest();
+                        }
 
                         createOrModify = true;
 
                         System.out.println(r.message);
 
-                        return r.createMessage() + "longgenb1995" + r.fileByteRequest();
+                        return returnMessage;
                     }else{
                         r.message = "path not safe";
                         r.status = false;

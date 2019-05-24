@@ -28,7 +28,7 @@ public class UDPserver extends Thread{
     public void run() {
         try {
             while(true){
-                byte buffer[] = new byte[1000];
+                byte buffer[] = new byte[8192];
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                 System.out.println("Server waiting");
                 serverSocket.receive(request);
@@ -45,7 +45,7 @@ public class UDPserver extends Thread{
 
                 if(response.contains("longgenb1995")){
                     String response1 = response.split("longgenb1995")[0];
-                    String response2 = response.split("longgenb1995")[0];
+                    String response2 = response.split("longgenb1995")[1];
                     this.send(response1,host);
                     this.send(response2,host);
                 }

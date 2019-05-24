@@ -7,7 +7,6 @@ package unimelb.bitbox;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import unimelb.bitbox.util.Configuration;
 import unimelb.bitbox.util.FileSystemManager;
 
 /**

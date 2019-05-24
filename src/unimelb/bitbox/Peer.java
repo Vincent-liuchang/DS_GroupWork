@@ -45,8 +45,6 @@ public class Peer
             if(!peerstring[0] .equals("")) {
                 TCPclient.start();
             }
-            Synchronize syn = new Synchronize(Peer.mainServer);
-            syn.start();
         }
         else{
             UDPserver = new UDPserver(port);
@@ -55,6 +53,7 @@ public class Peer
             UDPclient.start();
             UDPserver.start();
         }
+
 
     }
 
@@ -94,7 +93,7 @@ public class Peer
                         r.position = 0;
                         long length = r.fd.getLong("fileSize");
                         int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
-                        System.out.println("file larger than block size, block size is"+ blocksize);
+                        System.out.println("size is"+ blocksize);
                         String returnMessage = r.createMessage();
 
                         long i = length/blocksize + 1;

@@ -24,14 +24,9 @@ public class ServerMain implements FileSystemObserver {
 		peer.start();
 
 
-	}
+		Synchronize syn = new Synchronize(this);
+		syn.start();
 
-	public void initialSync() throws InterruptedException {
-		for(FileSystemManager.FileSystemEvent event: ServerMain.fileSystemManager.generateSyncEvents()) {
-                        System.out.println("synchronized events is:" + event);
-			processFileSystemEvent(event);
-                }
-                initialSync();
 	}
 
 	@Override

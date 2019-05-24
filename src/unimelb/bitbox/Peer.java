@@ -256,11 +256,13 @@ public class Peer
 
                             ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
 
-                            ServerMain.fileSystemManager.createFileLoader(
-                                    received_document.getString("pathName"),
-                                    r.fd.getString("md5"),
-                                    received_document.getLong("length"),
-                                    r.fd.getLong("lastModified"));
+                            if(r.position == 0) {
+                                ServerMain.fileSystemManager.createFileLoader(
+                                        received_document.getString("pathName"),
+                                        r.fd.getString("md5"),
+                                        received_document.getLong("length"),
+                                        r.fd.getLong("lastModified"));
+                            }
 
                             ServerMain.fileSystemManager.writeFile(
                                     received_document.getString("pathName"),
@@ -270,13 +272,14 @@ public class Peer
                             if (ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))) {
                                 return "ok";
 
-                            } else {
+                            } else if (r.length == Long.parseLong(Configuration.getConfigurationValue("blockSize"))){
 
-                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
-
-                                r.position = 0;
-                                r.length = r.fd.getLong("fileSize");
-                                return r.fileByteRequest();
+                                return "ok";
+                            }
+                            else{
+//                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
+//                                return r.fileByteRequest();
+                                return "ok";
                             }
                         }
 

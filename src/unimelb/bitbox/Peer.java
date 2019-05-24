@@ -92,6 +92,7 @@ public class Peer
                         r.position = 0;
                         long length = r.fd.getLong("fileSize");
                         int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
+                        System.out.println("file larger than block size, block size is"+ blocksize);
                         String returnMessage = r.createMessage();
 
                         long i = length/blocksize + 1;

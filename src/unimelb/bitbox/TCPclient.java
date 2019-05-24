@@ -41,7 +41,6 @@ public class TCPclient extends Thread {
 			String received = null;
 
 			Socket socket = new Socket(ip, port);
-			System.out.println("123456"+ip+" "+port);
 				this.socket = socket;
 				//Get the input/output streams for reading/writing data from/to the socket
 	            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
@@ -78,7 +77,7 @@ public class TCPclient extends Thread {
 						}
 						else {
 							if(new Peer().operation(received_message).equals("HandShakeComplete")){
-								System.out.println("HandShake Response Received");
+								System.out.println("HandShake Response Received, the server is" + received_message.get("hostPort"));
 								Synchronize syn = new Synchronize(Peer.mainServer);
 								syn.start();
 							}

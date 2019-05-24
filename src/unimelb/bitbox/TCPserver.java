@@ -102,11 +102,10 @@ public class TCPserver extends Thread{
 							if (Socketlist.size() <= Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))) {
 								Document handshake = new Document();
 								handshake.append("command", "HANDSHAKE_RESPONSE");
-								HostPort hostport = new HostPort(ip, port);
+								HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
 								handshake.append("hostPort", hostport.toDoc());
 								out.write(handshake.toJson() + "\n");
 								out.flush();
-								System.out.println(handshake.toJson());
 								System.out.println("HandShake Response Sent"+"\n");
 
 								Synchronize syn1 = new Synchronize(Peer.mainServer);

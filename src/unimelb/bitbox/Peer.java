@@ -45,6 +45,8 @@ public class Peer
             if(!peerstring[0] .equals("")) {
                 TCPclient.start();
             }
+            Synchronize syn = new Synchronize(Peer.mainServer);
+            syn.start();
         }
         else{
             UDPserver = new UDPserver(port);
@@ -102,7 +104,7 @@ public class Peer
                             r.length = Math.min(blocksize,length-j*blocksize);
                             returnMessage += "longgenb1995";
                             returnMessage += r.fileByteRequest();
-                            System.out.println("generate"+j+"file byte request, position is"+r.position);
+                            System.out.println("generate"+(j+1)+"file byte request, position is"+r.position+"length is:"+r.length);
                         }
 
                         createOrModify = true;

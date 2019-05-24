@@ -78,8 +78,8 @@ public class TCPclient extends Thread {
 						else {
 							if(new Peer().operation(received_message).equals("HandShakeComplete")){
 								System.out.println("HandShake Response Received, the server is" + received_message.get("hostPort"));
-								Synchronize syn = new Synchronize(Peer.mainServer);
-								syn.start();
+//								Synchronize syn = new Synchronize(Peer.mainServer);
+//								syn.start();
 							}
 							else if(!new Peer().operation(received_message).equals("ok")) {
 								out.write(new Peer().operation(received_message) + "\n");

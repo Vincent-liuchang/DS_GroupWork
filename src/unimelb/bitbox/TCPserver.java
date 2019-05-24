@@ -108,8 +108,8 @@ public class TCPserver extends Thread{
 								out.flush();
 								System.out.println("HandShake Response Sent"+"\n");
 
-								Synchronize syn1 = new Synchronize(Peer.mainServer);
-								syn1.start();
+//								Synchronize syn1 = new Synchronize(Peer.mainServer);
+//								syn1.start();
 							} else {
 								Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));
 								Document handshake = new Document();

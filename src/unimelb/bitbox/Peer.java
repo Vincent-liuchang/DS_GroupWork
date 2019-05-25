@@ -42,7 +42,7 @@ public class Peer
             TCPclient = new TCPclient(peers, port);
             TCPserver = new TCPserver(port);
             TCPserver.start();
-            if(!peerstring[0] .equals("")) {
+            if(!peerstring[0].equals("")) {
                 TCPclient.start();
             }
         }
@@ -99,7 +99,7 @@ public class Peer
                         long i = length/blocksize + 1;
 
                         System.out.println(received_document.getString("fileDescriptor"));
-
+                        System.out.println("total length: " + length);
                         for(int j = 0; j<(int)i ; j++){
                             r.position = j * blocksize;
                             r.length = Math.min(blocksize,length-j*blocksize);
@@ -267,7 +267,7 @@ public class Peer
                                     ServerMain.fileSystemManager.createFileLoader(
                                             received_document.getString("pathName"),
                                             r.fd.getString("md5"),
-                                            received_document.getLong("length"),
+                                            r.fd.getLong("fileSize"),
                                             r.fd.getLong("lastModified"));
                                 }
 

@@ -107,9 +107,6 @@ public class TCPserver extends Thread{
 								out.write(handshake.toJson() + "\n");
 								out.flush();
 								System.out.println("HandShake Response Sent"+"\n");
-
-//								Synchronize syn1 = new Synchronize(Peer.mainServer);
-//								syn1.start();
 							} else {
 								Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));
 								Document handshake = new Document();
@@ -126,9 +123,10 @@ public class TCPserver extends Thread{
 								out.flush();
 							}
 						} else {
-							if(new Peer().operation(received).contains("longgenb1995")){
+							String anbMessage = new Peer().operation(received);
+							if(anbMessage.contains("longgenb1995")){
 
-								String[] message = new Peer().operation(received).split("longgenb1995");
+								String[] message = anbMessage.split("longgenb1995");
 
 								for(String m : message){
 									Document receive = Document.parse(m);

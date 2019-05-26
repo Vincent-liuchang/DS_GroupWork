@@ -29,7 +29,7 @@ public class Synchronize extends Thread{
 			mainServer.processFileSystemEvent(event);
         }
         try {
-            Thread.sleep(60 *1000);
+            Thread.sleep(Integer.parseInt(Configuration.getConfigurationValue("syncInterval")) * 1000);
             run();
         } catch (InterruptedException ex) {
             Logger.getLogger(Synchronize.class.getName()).log(Level.SEVERE, null, ex);

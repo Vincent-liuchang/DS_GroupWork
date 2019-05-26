@@ -87,7 +87,11 @@ public class Peer
             if(command.contains("REQUEST")) {
                 if (command.equals("FILE_CREATE_REQUEST")) {
 
-                    if(r.pathSafe(received_document) && ! r.nameExist(received_document)){
+                    if(r.pathSafe(received_document) && ! r.nameExist(received_document) && ServerMain.fileSystemManager.createFileLoader
+                            (received_document.getString("pathName"),
+                            r.fd.getString("md5"),
+                            r.fd.getLong("fileSize"),
+                            r.fd.getLong("lastModified"))){
 
                         r.message = "File Create request received and byte buffer request sent";
                         r.status = true;
@@ -123,35 +127,38 @@ public class Peer
                     }
                 }else if (command.equals("FILE_MODIFY_REQUEST")) {
 
-                    if(r.pathSafe(received_document) && r.nameExist(received_document)){
+                    if(r.pathSafe(received_document) && r.nameExist(received_document) && ServerMain.fileSystemManager.modifyFileLoader
+                            (received_document.getString("pathName"),
+                            r.fd.getString("md5"),
+                            r.fd.getLong("lastModified"))){
 
-                        r.message = "modify file loader ready";
-                        r.status = true;
+                            r.message = "modify file loader ready";
+                            r.status = true;
 
-                        r.position = 0;
-                        r.length = r.fd.getLong("fileSize");
-                        long length = r.fd.getLong("fileSize");
-                        int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
-                        String returnMessage = r.fileModifyResponse();
+                            r.position = 0;
+                            r.length = r.fd.getLong("fileSize");
+                            long length = r.fd.getLong("fileSize");
+                            int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
+                            String returnMessage = r.fileModifyResponse();
 
-                        long i = length/blocksize + 1;
+                            long i = length/blocksize + 1;
 
-                        if(i>1){
-                            System.out.println("blocksize is"+ blocksize);
-                            System.out.println("total length: " + length);
-                        }
+                            if(i>1){
+                                System.out.println("blocksize is"+ blocksize);
+                                System.out.println("total length: " + length);
+                            }
 
-                        for(int j = 0; j<(int)i ; j++){
-                            r.position = j * blocksize;
-                            r.length = Math.min(blocksize,length-j*blocksize);
-                            returnMessage += "longgenb1995";
-                            returnMessage += r.fileByteRequest();
-                            System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
-                        }
+                            for(int j = 0; j<(int)i ; j++){
+                                r.position = j * blocksize;
+                                r.length = Math.min(blocksize,length-j*blocksize);
+                                returnMessage += "longgenb1995";
+                                returnMessage += r.fileByteRequest();
+                                System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
+                            }
 
-                        createOrModify = false;
-                        System.out.println(r.message);
-                        return returnMessage;
+                            createOrModify = false;
+                            System.out.println(r.message);
+                            return returnMessage;
 
                     }else{
                         r.message = "Path Not Safe or File Not Exists";
@@ -244,51 +251,9 @@ public class Peer
 
                 if(command.equals("FILE_BYTES_RESPONSE")){
 
-                    if(createOrModify){
-                        if(r.nameExist(received_document)){
-                            createOrModify = false;
                             String content = received_document.getString("content");
 
                             ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
-
-                            if(ServerMain.fileSystemManager.modifyFileLoader(
-                                    received_document.getString("pathName"),
-                                    r.fd.getString("md5"),
-                                    r.fd.getLong("lastModified"))) {
-
-                                ServerMain.fileSystemManager.writeFile(
-                                        received_document.getString("pathName"),
-                                        bf,
-                                        received_document.getLong("position"));
-
-                                if (ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))) {
-                                    return "ok";
-                                } else {
-
-                                    ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
-
-                                    r.position = 0;
-                                    r.length = r.fd.getLong("fileSize");
-                                    return r.fileByteRequest();
-                                }
-                            }
-                            else{
-                                return "ok";
-                            }
-                        }
-                        else {
-                            String content = received_document.getString("content");
-
-                            ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
-
-
-                                if(received_document.getLong("position") == 0) {
-                                    ServerMain.fileSystemManager.createFileLoader(
-                                            received_document.getString("pathName"),
-                                            r.fd.getString("md5"),
-                                            r.fd.getLong("fileSize"),
-                                            r.fd.getLong("lastModified"));
-                                }
 
                             ServerMain.fileSystemManager.writeFile(
                                     received_document.getString("pathName"),
@@ -297,48 +262,17 @@ public class Peer
 
                             if (ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))) {
                                 return "ok";
+                                //返回一个传输成功完成的response 进行后续处理
 
                             } else if (r.length == Long.parseLong(Configuration.getConfigurationValue("blockSize"))){
-
+                                System.out.println("transmitting");
                                 return "ok";
                             }
                             else{
-                                System.out.println("1 block sent");
-
-                                System.out.println(received_document.getString("fileDescriptor"));
-//                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
-//                                return r.fileByteRequest();
+                                System.out.println("Something goes wrong for transmitting, need retransmit");
+                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
                                 return "ok";
                             }
-                        }
-
-                    }else{
-                        String content = received_document.getString("content");
-
-                        ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
-
-                        ServerMain.fileSystemManager.modifyFileLoader(
-                                received_document.getString("pathName"),
-                                r.fd.getString("md5"),
-                                r.fd.getLong("lastModified"));
-
-                        ServerMain.fileSystemManager.writeFile(
-                                received_document.getString("pathName"),
-                                bf,
-                                received_document.getLong("position"));
-
-                        if(ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))){
-                            return "ok";
-                        }else{
-
-                            ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
-
-                            r.position = 0;
-                            r.length = r.fd.getLong("fileSize");
-                            return r.fileByteRequest();
-                        }
-
-                    }
 
                 }else if(command.equals("FILE_DELETE_RESPONSE") ||
                         command.equals("FILE_MODIFY_RESPONSE") ||

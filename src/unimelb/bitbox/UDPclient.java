@@ -1,5 +1,6 @@
 package unimelb.bitbox;
 import unimelb.bitbox.util.Document;
+import unimelb.bitbox.util.HostPort;
 
 import java.io.IOException;
 import java.net.*;
@@ -11,6 +12,7 @@ public class UDPclient extends Thread {
 
     private int port;
     private ArrayList<String> peers;
+    private ArrayList<String> onlinePeers;
     private DatagramSocket clientSocket;
 
     public UDPclient(ArrayList<String> peers, int port) {
@@ -60,6 +62,27 @@ public class UDPclient extends Thread {
             e.printStackTrace();
         } catch(ClassCastException e){
             System.out.println("Invalid Protocol Received By Local Client");
+        }
+    }
+
+
+    public void handShake(String ip){
+
+        try {
+            Document handshake = new Document();
+            handshake.append("command", "HANDSHAKE_REQUEST");
+            HostPort hostport = new HostPort(ip, port);
+            handshake.append("hostPort", hostport.toDoc());
+
+            byte[] buffer = handshake.toJson().getBytes();
+            InetAddress host = InetAddress.getByName(ip);
+            DatagramPacket request = new DatagramPacket(buffer, buffer.length, host, port);
+            clientSocket.send(request);
+            System.out.println("client sent handshake request");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

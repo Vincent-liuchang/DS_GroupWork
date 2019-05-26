@@ -90,7 +90,9 @@ public class UDPclient extends Thread {
 
     public void sendtoServer(String message){
         try {
-            for(String ip:onlinePeers){
+            peers.removeAll(onlinePeers);
+            peers.addAll(onlinePeers);
+            for(String ip: peers){
                 byte[] buffer = message.getBytes();
                 InetAddress host = InetAddress.getByName(ip);
                 DatagramPacket request = new DatagramPacket(buffer,buffer.length,host,port);

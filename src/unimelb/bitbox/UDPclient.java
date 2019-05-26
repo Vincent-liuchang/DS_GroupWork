@@ -14,6 +14,8 @@ public class UDPclient extends Thread {
     private ArrayList<String> peers;
     private ArrayList<String> onlinePeers = new ArrayList<>();
     private DatagramSocket clientSocket;
+    private byte[] buffer = new byte[15000];
+    private DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
 
     public UDPclient(ArrayList<String> peers, int port) {
         this.peers = peers;
@@ -21,6 +23,9 @@ public class UDPclient extends Thread {
 
         try {
             clientSocket = new DatagramSocket();
+            for(String ip: peers){
+                this.handShake(ip);
+            }
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -29,8 +34,6 @@ public class UDPclient extends Thread {
     @Override
     public void run() {
         try {
-            byte[] buffer = new byte[15000];
-            DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
             System.out.println("Local clients ready for accept");
             clientSocket.receive(reply);
             InetAddress host = reply.getAddress();

@@ -25,14 +25,16 @@ public class TCPclient extends Thread {
 	// IP and port
 	private String ip;
 	private int port;
-	private ArrayList<String> iplist = new ArrayList<String>();
+	private HostPort hostport;
+	private ArrayList<HostPort> iplist;
 	private Socket socket;
 	
-	public TCPclient(ArrayList<String> iplist, int port){
+	public TCPclient(ArrayList<HostPort> iplist){
 
 		this.iplist = iplist;
-		this.ip = iplist.get(0);
-		this.port = port;
+		hostport = iplist.get(0);
+		this.ip = hostport.host;
+		this.port = hostport.port;
 	}
 	
 	public void run() {
@@ -88,14 +90,20 @@ public class TCPclient extends Thread {
 		    
 		} catch (ConnectException e) {
 			try {
-				if(iplist.indexOf(ip)!= iplist.size()-1) {
-					ip = iplist.get(iplist.indexOf(ip) + 1);
+
+				if(iplist.indexOf(hostport)!= iplist.size()-1) {
+					hostport = iplist.get(iplist.indexOf(hostport) + 1);
 					System.out.println("this peer not online, finding next ...."+ e.toString());
 				}
-				else
-					ip = iplist.get(0);
+				else{
+					hostport = iplist.get(0);
+				}
+				try {
+					this.socket.close();
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
 				Thread.sleep(5*1000);
-
 				run();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
@@ -109,12 +117,13 @@ public class TCPclient extends Thread {
 				ex.printStackTrace();
 			}
 			try {
-				if(iplist.indexOf(ip)!= iplist.size()-1) {
-					ip = iplist.get(iplist.indexOf(ip) + 1);
+				if(iplist.indexOf(hostport)!= iplist.size()-1) {
+					hostport = iplist.get(iplist.indexOf(hostport) + 1);
 					System.out.println("this peer not online, finding next ...."+ e.toString());
 				}
-				else
-					ip = iplist.get(0);
+				else {
+					hostport = iplist.get(0);
+				}
 				Thread.sleep(5*1000);
 				run();
 			} catch (InterruptedException e1) {

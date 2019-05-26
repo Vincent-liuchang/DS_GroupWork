@@ -1,4 +1,5 @@
 package unimelb.bitbox;
+import unimelb.bitbox.util.Configuration;
 import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.HostPort;
 
@@ -10,20 +11,18 @@ import java.util.ArrayList;
 
 public class UDPclient extends Thread {
 
-    private int port;
-    private ArrayList<String> peers;
-    private ArrayList<String> onlinePeers = new ArrayList<>();
+    private ArrayList<HostPort> peers;
+    private ArrayList<HostPort> onlinePeers = new ArrayList<>();
     private DatagramSocket clientSocket;
     private byte[] buffer = new byte[15000];
     private DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
 
-    public UDPclient(ArrayList<String> peers, int port) {
+    public UDPclient(ArrayList<HostPort> peers) {
         this.peers = peers;
-        this.port = port;
 
         try {
             clientSocket = new DatagramSocket();
-            for(String ip: peers){
+            for(HostPort ip: peers){
                 this.handShake(ip);
             }
         } catch (SocketException e) {
@@ -35,32 +34,32 @@ public class UDPclient extends Thread {
     public void run() {
         try {
             System.out.println("Local clients ready for accept");
-            clientSocket.receive(reply);
-            InetAddress host = reply.getAddress();
+            while(true) {
+                clientSocket.receive(reply);
+                InetAddress host = reply.getAddress();
 
-            String received  =  new String(reply.getData()).trim();
-            Document received_message = Document.parse(received);
-            String response = new Peer().operation(received_message);
+                String received = new String(reply.getData()).trim();
+                Document received_message = Document.parse(received);
+                String response = new Peer().operation(received_message);
 
-            if(response.equals("HandShakeComplete")){
-                String ip =reply.getAddress().getHostAddress();
-                System.out.println("HandShake Response Received, the server is" + ip);
-                onlinePeers.add(ip);
-            }
-            else if(response.contains("longgenb1995")){
-                String re[] = response.split("longgenb1995");
-                for(String i: re ){
-                    byte[] buf = i.getBytes();
-                    DatagramPacket request = new DatagramPacket(buf,buf.length,host,port);
+                if (response.equals("HandShakeComplete")) {
+                    String ip = reply.getAddress().getHostAddress();
+                    System.out.println("HandShake Response Received, the server is" + ip);
+                    onlinePeers.add(new HostPort(ip,reply.getPort()));
+                } else if (response.contains("longgenb1995")) {
+                    String re[] = response.split("longgenb1995");
+                    for (String i : re) {
+                        byte[] buf = i.getBytes();
+                        DatagramPacket request = new DatagramPacket(buf, buf.length, host, reply.getPort());
+                        clientSocket.send(request);
+                        System.out.println("1 UDP packet sent");
+                    }
+                } else if (!response.equals("ok")) {
+                    byte[] buf = response.getBytes();
+                    DatagramPacket request = new DatagramPacket(buf, buf.length, host, reply.getPort());
                     clientSocket.send(request);
-                    System.out.println("1 UDP packet sent");
+                    System.out.println("client sent" + response);
                 }
-            }
-            else if (!response.equals("ok")) {
-                byte[] buf = response.getBytes();
-                DatagramPacket request = new DatagramPacket(buf,buf.length,host,port);
-                clientSocket.send(request);
-                System.out.println("client sent"+response);
             }
 
         } catch (IOException | NoSuchAlgorithmException e) {
@@ -71,17 +70,17 @@ public class UDPclient extends Thread {
     }
 
 
-    public void handShake(String ip){
+    public void handShake(HostPort ip){
 
         try {
             Document handshake = new Document();
             handshake.append("command", "HANDSHAKE_REQUEST");
-            HostPort hostport = new HostPort(ip, port);
+            HostPort hostport = new HostPort(clientSocket.getInetAddress().toString(), Integer.parseInt(Configuration.getConfigurationValue("port")));
             handshake.append("hostPort", hostport.toDoc());
 
             byte[] buffer = handshake.toJson().getBytes();
-            InetAddress host = InetAddress.getByName(ip);
-            DatagramPacket request = new DatagramPacket(buffer, buffer.length, host, port);
+            InetAddress host = InetAddress.getByName(ip.host);
+            DatagramPacket request = new DatagramPacket(buffer, buffer.length, host,ip.port);
             clientSocket.send(request);
             System.out.println("client sent handshake request");
         } catch (UnknownHostException e) {
@@ -95,10 +94,9 @@ public class UDPclient extends Thread {
         try {
             peers.removeAll(onlinePeers);
             peers.addAll(onlinePeers);
-            for(String ip: peers){
+            for(HostPort ip: peers){
                 byte[] buffer = message.getBytes();
-                InetAddress host = InetAddress.getByName(ip);
-                DatagramPacket request = new DatagramPacket(buffer,buffer.length,host,port);
+                DatagramPacket request = new DatagramPacket(buffer,buffer.length,InetAddress.getByName(ip.host),ip.port);
                 clientSocket.send(request);
                 System.out.println("client sent"+message);
             }

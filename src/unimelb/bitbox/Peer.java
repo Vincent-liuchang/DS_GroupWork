@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import unimelb.bitbox.util.Configuration;
 import unimelb.bitbox.util.Document;
+import unimelb.bitbox.util.HostPort;
 
 public class Peer
 {
@@ -38,11 +39,16 @@ public class Peer
     private TCPserver TCPserver;
     private UDPclient UDPclient;
     private UDPserver UDPserver;
-
+    private ArrayList<HostPort> hosts = new ArrayList<>();
 
     public void start(){
+
+        for(String i : peers){
+            hosts.add(new HostPort(i));
+        }
+
         if(mode.equals("TCP")){
-            TCPclient = new TCPclient(peers, port);
+            TCPclient = new TCPclient(hosts);
             TCPserver = new TCPserver(port);
             TCPserver.start();
             if(!peerstring[0].equals("")) {
@@ -51,10 +57,12 @@ public class Peer
         }
         else{
             UDPserver = new UDPserver(port);
-            UDPclient = new UDPclient(peers,port);
-
-            UDPclient.start();
+            UDPclient = new UDPclient(hosts);
             UDPserver.start();
+
+            if(!peerstring[0].equals("")) {
+                UDPclient.start();
+            }
         }
 
 

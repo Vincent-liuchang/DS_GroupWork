@@ -26,7 +26,8 @@ public class TCPserver extends Thread{
 	private int counter = 0 ;
 	
 	private ArrayList<Socket> Socketlist = new ArrayList<Socket>();
-	
+	private ArrayList<HostPort> serverlist = new ArrayList<>();
+
 	public TCPserver(int port){
 		this.port = port;
 	}
@@ -107,15 +108,16 @@ public class TCPserver extends Thread{
 								out.write(handshake.toJson() + "\n");
 								out.flush();
 								System.out.println("HandShake Response Sent"+"\n");
+								serverlist.add(new HostPort(Document.parse(received.getString("hostPort"))));
+
 							} else {
 								Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));
 								Document handshake = new Document();
 								handshake.append("command", "CONNECTION_REFUSED");
 								handshake.append("message", "connection limit reached");
 								ArrayList<Document> peers = new ArrayList<Document>();
-								for (Socket s : Socketlist) {
-									HostPort hostport = new HostPort(s.getInetAddress().toString(), s.getPort());
-									peers.add(hostport.toDoc());
+								for (HostPort s : serverlist) {
+									peers.add(s.toDoc());
 								}
 								handshake.append("peers", peers);
 

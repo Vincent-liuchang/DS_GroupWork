@@ -25,6 +25,7 @@ public class Peer
 
         mainServer = new ServerMain();
         Synchronize syn = new Synchronize(mainServer);
+        System.out.println("Synchronize service start");
         syn.start();
 
     }
@@ -39,7 +40,7 @@ public class Peer
     private UDPserver UDPserver;
 
 
-    public  void start(){
+    public void start(){
         if(mode.equals("TCP")){
             TCPclient = new TCPclient(peers, port);
             TCPserver = new TCPserver(port);
@@ -67,6 +68,7 @@ public class Peer
         }
         else{
             UDPclient.sendtoServer(message);
+            UDPserver.sendtoClient(message);
         }
 
     }
@@ -79,7 +81,7 @@ public class Peer
         }
         else {
 
-               Response r = new Response(received_document);
+            Response r = new Response(received_document);
            
             String command = received_document.getString("command");
 
@@ -119,7 +121,7 @@ public class Peer
                         return returnMessage;
 
                     }else{
-                        r.message = "file create request received and path not safe";
+                        r.message = "file create request received, path not safe or file exists";
                         r.status = false;
                         System.out.println(r.message);
 
@@ -265,13 +267,8 @@ public class Peer
                                 return "ok";
                                 //返回一个传输成功完成的response 进行后续处理
 
-                            } else if (r.length == Long.parseLong(Configuration.getConfigurationValue("blockSize"))){
+                            } else{
                                 System.out.println("transmitting");
-                                return "ok";
-                            }
-                            else{
-                                System.out.println("done");
-//                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
                                 return "ok";
                             }
 

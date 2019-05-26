@@ -3,16 +3,14 @@ package unimelb.bitbox;
 import unimelb.bitbox.util.Document;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class UDPserver extends Thread{
     private int port;
-    private ArrayList<DatagramPacket> clientRequests = new ArrayList<DatagramPacket>();
+    private ArrayList<DatagramPacket> clientRequests = new ArrayList();
+    private ArrayList<InetAddress> onlinePeers = new ArrayList();
     private DatagramSocket serverSocket;
 
     public UDPserver(int port) {
@@ -43,11 +41,16 @@ public class UDPserver extends Thread{
                 String response = new Peer().operation(received_message);
                 System.out.println("udp server's response"+response);
 
-                if(response.contains("longgenb1995")){
-                    String response1 = response.split("longgenb1995")[0];
-                    String response2 = response.split("longgenb1995")[1];
-                    this.send(response1,host);
-                    this.send(response2,host);
+                if(response.contains("HANDSHAKE_RESPONSE")){
+                    onlinePeers.add(host);
+                }
+                else if(response.contains("longgenb1995")){
+
+                    String re[] = response.split("longgenb1995");
+                    for(String i: re ){
+                        this.send(i,host);
+                        System.out.println("1 UDP packet sent");
+                    }
                 }
                 else if (!response.equals("ok")) {
                     this.send(response,host);
@@ -58,9 +61,11 @@ public class UDPserver extends Thread{
         }
     }
     public void sendtoClient(String message){
-            for(DatagramPacket a:clientRequests){
-                this.send(message,a.getAddress());
+
+        for(InetAddress a: onlinePeers) {
+            this.send(message, a);
         }
+
     }
 
     public void send(String message,InetAddress host){

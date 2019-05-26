@@ -28,7 +28,7 @@ public class UDPserver extends Thread{
     public void run() {
         try {
             while(true){
-                byte buffer[] = new byte[8192];
+                byte buffer[] = new byte[15000];
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                 System.out.println("Server waiting");
                 serverSocket.receive(request);

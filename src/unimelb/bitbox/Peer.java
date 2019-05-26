@@ -65,7 +65,6 @@ public class Peer
         }
         else{
             UDPclient.sendtoServer(message);
-//            UDPserver.sendtoClient(message);
         }
 
     }
@@ -93,13 +92,14 @@ public class Peer
                         r.position = 0;
                         long length = r.fd.getLong("fileSize");
                         int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
-                        System.out.println("blocksize is"+ blocksize);
                         String returnMessage = r.createMessage();
 
                         long i = length/blocksize + 1;
 
-                        System.out.println(received_document.getString("fileDescriptor"));
-                        System.out.println("total length: " + length);
+                        if(i>1){
+                            System.out.println("blocksize is"+ blocksize);
+                            System.out.println("total length: " + length);
+                        }
                         for(int j = 0; j<(int)i ; j++){
                             r.position = j * blocksize;
                             r.length = Math.min(blocksize,length-j*blocksize);
@@ -107,9 +107,10 @@ public class Peer
                             returnMessage += r.fileByteRequest();
                             System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
                         }
-
                         createOrModify = true;
+                        System.out.println(r.message);
                         return returnMessage;
+
                     }else{
                         r.message = "file create request received and path not safe";
                         r.status = false;
@@ -126,15 +127,31 @@ public class Peer
 
                         r.position = 0;
                         r.length = r.fd.getLong("fileSize");
+                        long length = r.fd.getLong("fileSize");
+                        int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
+                        String returnMessage = r.fileModifyResponse();
+
+                        long i = length/blocksize + 1;
+
+                        if(i>1){
+                            System.out.println("blocksize is"+ blocksize);
+                            System.out.println("total length: " + length);
+                        }
+
+                        for(int j = 0; j<(int)i ; j++){
+                            r.position = j * blocksize;
+                            r.length = Math.min(blocksize,length-j*blocksize);
+                            returnMessage += "longgenb1995";
+                            returnMessage += r.fileByteRequest();
+                            System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
+                        }
 
                         createOrModify = false;
-                        
                         System.out.println(r.message);
-
-                        return r.createMessage() + "longgenb1995" + r.fileByteRequest();
+                        return returnMessage;
 
                     }else{
-                        r.message = "file loader not ready";
+                        r.message = "Path Not Safe or File Not Exists";
                         r.status = false;
                         
                         System.out.println(r.message);
@@ -209,7 +226,7 @@ public class Peer
                     }
                     
                     System.out.println(r.message);
-                    return r.directoryCreateResponse();
+                    return r.directoryDeleteResponse();
                 }else{
 
                     r.message = "message must contain a command field as string";
@@ -226,7 +243,6 @@ public class Peer
 
                     if(createOrModify){
                         if(r.nameExist(received_document)){
-                            System.out.println("不该来着吧");
                             createOrModify = false;
                             String content = received_document.getString("content");
 
@@ -284,7 +300,7 @@ public class Peer
                                 return "ok";
                             }
                             else{
-                                System.out.println("这是最后一个么?");
+                                System.out.println("1 block sent");
 
                                 System.out.println(received_document.getString("fileDescriptor"));
 //                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));

@@ -27,7 +27,7 @@ public class UDPclient extends Thread {
     @Override
     public void run() {
         try {
-            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[15000];
             DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
             System.out.println("Local clients ready for accept");
             clientSocket.receive(reply);

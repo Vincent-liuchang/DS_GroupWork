@@ -37,7 +37,6 @@ public class TCPclient extends Thread {
 	
 	public void run() {
 		try{
-
 			String received = null;
 
 			Socket socket = new Socket(ip, port);

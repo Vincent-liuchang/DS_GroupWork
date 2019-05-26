@@ -25,6 +25,9 @@ public class Peer
         Configuration.getConfiguration();
 
         mainServer = new ServerMain();
+        Synchronize syn = new Synchronize(mainServer);
+        syn.start();
+
     }
 
     private int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));

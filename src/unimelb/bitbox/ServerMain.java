@@ -22,9 +22,6 @@ public class ServerMain implements FileSystemObserver {
 		fileSystemManager = new FileSystemManager(Configuration.getConfigurationValue("path"),this);
 
 		peer.start();
-//
-//		Synchronize syn = new Synchronize(this);
-//		syn.start();
 
 	}
 

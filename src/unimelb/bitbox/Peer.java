@@ -15,7 +15,6 @@ public class Peer
 {
     static protected ServerMain mainServer;
     private static Logger log = Logger.getLogger(Peer.class.getName());
-    private static boolean createOrModify;    // true = create    false = modify
 
     public static void main( String[] args ) throws IOException, NumberFormatException, NoSuchAlgorithmException, InterruptedException
     {
@@ -114,7 +113,6 @@ public class Peer
                             returnMessage += r.fileByteRequest();
                             System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
                         }
-                        createOrModify = true;
                         System.out.println(r.message);
                         return returnMessage;
 
@@ -156,7 +154,6 @@ public class Peer
                                 System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
                             }
 
-                            createOrModify = false;
                             System.out.println(r.message);
                             return returnMessage;
 

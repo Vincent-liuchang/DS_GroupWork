@@ -86,11 +86,13 @@ public class Peer
             if(command.contains("REQUEST")) {
                 if (command.equals("FILE_CREATE_REQUEST")) {
 
-                    if(r.pathSafe(received_document) && ! r.nameExist(received_document) && ServerMain.fileSystemManager.createFileLoader
-                            (received_document.getString("pathName"),
-                            r.fd.getString("md5"),
-                            r.fd.getLong("fileSize"),
-                            r.fd.getLong("lastModified"))){
+                    if(r.pathSafe(received_document) && ! r.nameExist(received_document)) {
+
+                        ServerMain.fileSystemManager.createFileLoader
+                                (received_document.getString("pathName"),
+                                        r.fd.getString("md5"),
+                                        r.fd.getLong("fileSize"),
+                                        r.fd.getLong("lastModified"));
 
                         r.message = "File Create request received and byte buffer request sent";
                         r.status = true;
@@ -125,10 +127,12 @@ public class Peer
                     }
                 }else if (command.equals("FILE_MODIFY_REQUEST")) {
 
-                    if(r.pathSafe(received_document) && r.nameExist(received_document) && ServerMain.fileSystemManager.modifyFileLoader
-                            (received_document.getString("pathName"),
-                            r.fd.getString("md5"),
-                            r.fd.getLong("lastModified"))){
+                    if(r.pathSafe(received_document) && r.nameExist(received_document)) {
+
+                        ServerMain.fileSystemManager.modifyFileLoader
+                                (received_document.getString("pathName"),
+                                        r.fd.getString("md5"),
+                                        r.fd.getLong("lastModified"));
 
                             r.message = "modify file loader ready";
                             r.status = true;
@@ -266,8 +270,8 @@ public class Peer
                                 return "ok";
                             }
                             else{
-                                System.out.println("Something goes wrong for transmitting, need retransmit");
-                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
+                                System.out.println("done");
+//                                ServerMain.fileSystemManager.cancelFileLoader(received_document.getString("pathName"));
                                 return "ok";
                             }
 

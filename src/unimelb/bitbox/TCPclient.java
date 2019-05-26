@@ -73,11 +73,11 @@ public class TCPclient extends Thread {
 
 						}
 						else {
-							if(new Peer().operation(received_message).equals("HandShakeComplete")){
+							if(anbMessage.equals("HandShakeComplete")){
 								System.out.println("HandShake Response Received, the server is" + ip);
 							}
-							else if(!new Peer().operation(received_message).equals("ok")) {
-								out.write(new Peer().operation(received_message) + "\n");
+							else if(!anbMessage.equals("ok")) {
+								out.write(anbMessage + "\n");
 								out.flush();
 							}
 						}

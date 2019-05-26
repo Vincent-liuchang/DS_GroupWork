@@ -136,9 +136,9 @@ public class TCPserver extends Thread{
 
 							}else {
 
-								if (!new Peer().operation(received).equals("ok")) {
+								if (!anbMessage.equals("ok")) {
 //									System.out.println("TCPserver received from client: " + new Peer().operation((received)) + "\n");
-									out.write(new Peer().operation(received) + "\n");
+									out.write(anbMessage + "\n");
 									out.flush();
 								}
 							}

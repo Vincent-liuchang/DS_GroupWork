@@ -84,7 +84,7 @@ public class Peer
             if(command.contains("REQUEST")) {
                 if (command.equals("FILE_CREATE_REQUEST")) {
 
-                    if(r.pathSafe(received_document)){
+                    if(r.pathSafe(received_document) && ! r.nameExist(received_document)){
 
                         r.message = "File Create request received and byte buffer request sent";
                         r.status = true;

@@ -90,29 +90,23 @@ public class TCPclient extends Thread {
 		    
 		} catch (ConnectException e) {
 			try {
-				if(iplist.indexOf(hostport)!= iplist.size()-1) {
+				System.out.println("this peer not online, finding next ...."+ e.toString());
+				if(iplist.indexOf(hostport) != (iplist.size()-1)) {
 					hostport = iplist.get(iplist.indexOf(hostport) + 1);
-					System.out.println("this peer not online, finding next ...."+ e.toString());
 				}
 				else{
 					hostport = iplist.get(0);
 				}
 				Thread.sleep(5*1000);
 				run();
-			} catch (InterruptedException e1) {
+			}
+			catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
 		}
 		catch (SocketException  e) {
-			System.out.println("TCP server off line");
+			System.out.println("this peer's server  offline, finding next ...."+ e.toString());
 			try {
-				if(iplist.indexOf(hostport)!= iplist.size()-1) {
-					hostport = iplist.get(iplist.indexOf(hostport) + 1);
-					System.out.println("this peer not online, finding next ...."+ e.toString());
-				}
-				else {
-					hostport = iplist.get(0);
-				}
 				Thread.sleep(5*1000);
 				run();
 			} catch (InterruptedException e1) {
@@ -136,7 +130,11 @@ public class TCPclient extends Thread {
 
                 out.write(message+"\n");
                 out.flush();
-            } catch (IOException e) {
+            }
+            catch (SocketException  e) {
+				System.out.println("this peer's server  offline");
+			}
+            catch (IOException e) {
                 e.printStackTrace();
             }
 

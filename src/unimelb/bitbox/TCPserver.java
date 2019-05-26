@@ -40,6 +40,7 @@ public class TCPserver extends Thread{
 			
 			// Wait for connections.
 			while(true){
+
 				Socket client = server.accept();
 				counter++;
 				if(Socketlist.size() != 0) {
@@ -166,6 +167,9 @@ public class TCPserver extends Thread{
 		if(Socketlist.size()!=0){
 			for(Socket s: Socketlist){
 				try {
+					if (s.isClosed()) {
+						Socketlist.remove(s);
+					}
 					BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
 					BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"));
 					System.out.println("TCPserver send to Clients:" + message);

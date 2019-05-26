@@ -99,7 +99,7 @@ public class UDPclient extends Thread {
                 byte[] buffer = message.getBytes();
                 DatagramPacket request = new DatagramPacket(buffer,buffer.length,InetAddress.getByName(ip.host),ip.port);
                 clientSocket.send(request);
-                System.out.println("client sent"+message);
+                System.out.println("client sent"+message+ " to "+ ip.toDoc().toJson());
             }
 
         } catch (UnknownHostException e){

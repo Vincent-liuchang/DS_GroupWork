@@ -90,7 +90,6 @@ public class TCPclient extends Thread {
 		    
 		} catch (ConnectException e) {
 			try {
-
 				if(iplist.indexOf(hostport)!= iplist.size()-1) {
 					hostport = iplist.get(iplist.indexOf(hostport) + 1);
 					System.out.println("this peer not online, finding next ...."+ e.toString());
@@ -105,12 +104,7 @@ public class TCPclient extends Thread {
 			}
 		}
 		catch (SocketException  e) {
-			System.out.println("TCPserver off line");
-			try {
-				this.socket.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
+			System.out.println("TCP server off line");
 			try {
 				if(iplist.indexOf(hostport)!= iplist.size()-1) {
 					hostport = iplist.get(iplist.indexOf(hostport) + 1);

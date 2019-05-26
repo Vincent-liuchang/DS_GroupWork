@@ -54,8 +54,8 @@ public class UDPserver extends Thread{
                         handshake.append("peers", peers);
                     }
                     else{
-                        System.out.println("HandShake Request Accepted by TCPserver");
-                        onlinePeers.add(new HostPort(request.getAddress().toString(),(int)Document.parse(received_message.getString("hostPort")).getLong("port")));
+                        System.out.println("HandShake Request Accepted by UDP server");
+                        onlinePeers.add(new HostPort(request.getAddress().toString().replace("/",""),(int)Document.parse(received_message.getString("hostPort")).getLong("port")));
                         Document handshake = new Document();
                         handshake.append("command", "HANDSHAKE_RESPONSE");
                         HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
@@ -102,7 +102,7 @@ public class UDPserver extends Thread{
                 byte[] buffer = message.getBytes();
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(host.host), host.port);
                 serverSocket.send(request);
-                System.out.println("server sent"+message);
+                System.out.println("server sent"+message+" to "+host.toDoc().toJson());
             }
         }
         catch (UnknownHostException e){

@@ -20,6 +20,10 @@ public class UDPclient extends Thread {
     public UDPclient(ArrayList<HostPort> peers) {
         this.peers = peers;
 
+    }
+
+    @Override
+    public void run() {
         try {
             clientSocket = new DatagramSocket();
             for(HostPort ip: peers){
@@ -28,10 +32,6 @@ public class UDPclient extends Thread {
         } catch (SocketException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void run() {
         try {
             System.out.println("Local clients ready for accept");
             while(true) {
@@ -41,6 +41,7 @@ public class UDPclient extends Thread {
                 String received = new String(reply.getData()).trim();
                 Document received_message = Document.parse(received);
                 String response = new Peer().operation(received_message);
+
 
                 if (response.equals("HandShakeComplete")) {
                     String ip = reply.getAddress().getHostAddress();
@@ -75,16 +76,16 @@ public class UDPclient extends Thread {
         try {
             Document handshake = new Document();
             handshake.append("command", "HANDSHAKE_REQUEST");
-            HostPort hostport = new HostPort(clientSocket.getInetAddress().toString(), Integer.parseInt(Configuration.getConfigurationValue("port")));
-            handshake.append("hostPort", hostport.toDoc());
+            HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), Integer.parseInt(Configuration.getConfigurationValue("port")));
+            handshake.append("hostPort", hostport.toDoc().toJson());
 
             byte[] buffer = handshake.toJson().getBytes();
             InetAddress host = InetAddress.getByName(ip.host);
             DatagramPacket request = new DatagramPacket(buffer, buffer.length, host,ip.port);
             clientSocket.send(request);
             System.out.println("client sent handshake request");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+        } catch (UnknownHostException e){
+            System.out.println("not all host online");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,6 +101,9 @@ public class UDPclient extends Thread {
                 clientSocket.send(request);
                 System.out.println("client sent"+message);
             }
+
+        } catch (UnknownHostException e){
+            System.out.println("not all host online");
         } catch (IOException e) {
             e.printStackTrace();
         }

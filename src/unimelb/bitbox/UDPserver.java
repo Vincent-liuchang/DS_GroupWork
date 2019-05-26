@@ -33,13 +33,14 @@ public class UDPserver extends Thread{
                 System.out.println("Server waiting");
                 serverSocket.receive(request);
                 clientRequests.add(request);
-                HostPort host = new HostPort(request.getAddress().toString(),request.getPort());
+                HostPort host = new HostPort(request.getSocketAddress().toString().replace("/",""));
 
                 String received  =  new String(request.getData()).trim();
                 received = received +"\n";
                 System.out.println("udp server received"+received);
                 Document received_message = Document.parse(received);
                 String response;
+                System.out.println(received_message.getString("command"));
 
                 if(received_message.getString("command").equals("HANDSHAKE_REQUEST")){
                     if(onlinePeers.size() > Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))){
@@ -54,7 +55,7 @@ public class UDPserver extends Thread{
                     }
                     else{
                         System.out.println("HandShake Request Accepted by TCPserver");
-                        onlinePeers.add(new HostPort(Document.parse(received_message.getString("hostPort"))));
+                        onlinePeers.add(new HostPort(request.getAddress().toString(),(int)Document.parse(received_message.getString("hostPort")).getLong("port")));
                         Document handshake = new Document();
                         handshake.append("command", "HANDSHAKE_RESPONSE");
                         HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
@@ -62,23 +63,28 @@ public class UDPserver extends Thread{
                         this.send(handshake.toJson(),host);
                     }
                 }
-                System.out.println(received_message.toJson());
-                response = new Peer().operation(received_message);
-                System.out.println("udp server's response"+response);
+                else {
+                    response = new Peer().operation(received_message);
+                    System.out.println("udp server's response" + response);
 
-                if(response.contains("longgenb1995")){
+                    if (response.contains("longgenb1995")) {
 
-                    String re[] = response.split("longgenb1995");
-                    for(String i: re ){
-                        this.send(i,host);
-                        System.out.println("1 UDP packet sent");
+                        String re[] = response.split("longgenb1995");
+                        for (String i : re) {
+                            this.send(i, host);
+                            System.out.println("1 UDP packet sent");
+                        }
+                    } else if (!response.equals("ok")) {
+                        this.send(response, host);
                     }
                 }
-                else if (!response.equals("ok")) {
-                    this.send(response,host);
-                }
             }
-        } catch (ClassCastException | IOException | NoSuchAlgorithmException e) {
+
+        }
+        catch (UnknownHostException e){
+            System.out.println("not all host online");
+        }
+        catch (ClassCastException | IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }
@@ -92,10 +98,15 @@ public class UDPserver extends Thread{
 
     public void send(String message,HostPort host){
         try {
-            byte[] buffer = message.getBytes();
-            DatagramPacket request = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(host.host), host.port);
-            serverSocket.send(request);
-            System.out.println("server sent"+message);
+            if(message.contains("_")){
+                byte[] buffer = message.getBytes();
+                DatagramPacket request = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(host.host), host.port);
+                serverSocket.send(request);
+                System.out.println("server sent"+message);
+            }
+        }
+        catch (UnknownHostException e){
+            System.out.println("not all host online");
         }
         catch (IOException e) {
             e.printStackTrace();

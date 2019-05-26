@@ -50,7 +50,7 @@ public class TCPclient extends Thread {
 	            Document handshake = new Document();
 	            handshake.append("command","HANDSHAKE_REQUEST");
 				HostPort hostport = new HostPort(socket.getInetAddress().toString(),port);
-				handshake.append("hostPort",hostport.toDoc());
+				handshake.append("hostPort",hostport.toDoc().toJson());
 				out.write(handshake.toJson()+"\n");
 				out.flush();
 
@@ -97,11 +97,6 @@ public class TCPclient extends Thread {
 				}
 				else{
 					hostport = iplist.get(0);
-				}
-				try {
-					this.socket.close();
-				} catch (IOException ex) {
-					ex.printStackTrace();
 				}
 				Thread.sleep(5*1000);
 				run();

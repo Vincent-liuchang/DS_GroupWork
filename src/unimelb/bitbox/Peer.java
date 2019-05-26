@@ -110,6 +110,11 @@ public class Peer
                         r.position = 0;
                         long length = r.fd.getLong("fileSize");
                         int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
+
+                        if(Configuration.getConfigurationValue("mode").equals("UDP")){
+                            blocksize = Math.min(blocksize,8192);
+                        }
+
                         String returnMessage = r.createMessage();
 
                         long i = length/blocksize + 1;

@@ -77,10 +77,10 @@ public class TCPclient extends Thread {
 						else {
 							if(anbMessage.equals("HandShakeComplete")){
 								System.out.println("HandShake Response Received, the server is" + ip);
-								if(!Peer.syn.isAlive()){
-									Peer.syn.start();
-									System.out.println("Synchronize service start");
-								}
+//								if(!Peer.syn.isAlive()){
+//									Peer.syn.start();
+//									System.out.println("Synchronize service start");
+//								}
 							}
 							else if(!anbMessage.equals("ok")) {
 								out.write(anbMessage + "\n");

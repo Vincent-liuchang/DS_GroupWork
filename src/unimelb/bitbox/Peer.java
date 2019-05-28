@@ -26,7 +26,9 @@ public class Peer
         Configuration.getConfiguration();
 
         mainServer = new ServerMain();
+
         syn = new Synchronize(mainServer);
+
 
     }
 
@@ -142,6 +144,8 @@ public class Peer
                 }else if (command.equals("FILE_MODIFY_REQUEST")) {
 
                     if(r.pathSafe(received_document) && r.nameExist(received_document)) {
+
+
 
                         ServerMain.fileSystemManager.modifyFileLoader
                                 (received_document.getString("pathName"),

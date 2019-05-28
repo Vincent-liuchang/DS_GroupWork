@@ -99,17 +99,17 @@ public class TCPserver extends Thread{
 					} else {
 						Document received = Document.parse(clientMsg);
 						if (received.get("command").equals("HANDSHAKE_REQUEST")) {
-							if(!Peer.syn.isAlive()){
-								Peer.syn.start();
-								System.out.println("Synchronize service start");
-							}
+//							if(!Peer.syn.isAlive()){
+//								Peer.syn.start();
+//								System.out.println("Synchronize service start");
+//							}
 							System.out.println("HandShake Request Accepted by TCPserver");
 
 							if (Socketlist.size() <= Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))) {
 								Document handshake = new Document();
 								handshake.append("command", "HANDSHAKE_RESPONSE");
 								HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
-								handshake.append("hostPort", hostport.toDoc());
+								handshake.append("hostPort", hostport.toDoc().toJson());
 								out.write(handshake.toJson() + "\n");
 								out.flush();
 								System.out.println("HandShake Response Sent"+"\n");
@@ -131,6 +131,7 @@ public class TCPserver extends Thread{
 							}
 						} else {
 							String anbMessage = new Peer().operation(received);
+							System.out.println("server sent:"+anbMessage);
 							if(anbMessage.contains("longgenb1995")){
 
 								String[] message = anbMessage.split("longgenb1995");
@@ -144,7 +145,7 @@ public class TCPserver extends Thread{
 							}else {
 
 								if (!anbMessage.equals("ok")) {
-//									System.out.println("TCPserver received from client: " + new Peer().operation((received)) + "\n");
+									System.out.println("TCPserver received from client: " + new Peer().operation((received)) + "\n");
 									out.write(anbMessage + "\n");
 									out.flush();
 								}

@@ -16,6 +16,7 @@ public class Peer
 {
     static protected ServerMain mainServer;
     private static Logger log = Logger.getLogger(Peer.class.getName());
+    protected static Synchronize syn;
 
     public static void main( String[] args ) throws IOException, NumberFormatException, NoSuchAlgorithmException, InterruptedException
     {
@@ -25,9 +26,8 @@ public class Peer
         Configuration.getConfiguration();
 
         mainServer = new ServerMain();
-        Synchronize syn = new Synchronize(mainServer);
-        System.out.println("Synchronize service start");
-        syn.start();
+
+        syn = new Synchronize(mainServer);
 
     }
 

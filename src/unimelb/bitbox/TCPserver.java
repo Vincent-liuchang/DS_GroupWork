@@ -99,6 +99,10 @@ public class TCPserver extends Thread{
 					} else {
 						Document received = Document.parse(clientMsg);
 						if (received.get("command").equals("HANDSHAKE_REQUEST")) {
+							if(!Peer.syn.isAlive()){
+								Peer.syn.start();
+								System.out.println("Synchronize service start");
+							}
 							System.out.println("HandShake Request Accepted by TCPserver");
 
 							if (Socketlist.size() <= Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))) {

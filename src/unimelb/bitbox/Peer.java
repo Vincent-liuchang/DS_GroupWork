@@ -26,7 +26,6 @@ public class Peer
         Configuration.getConfiguration();
 
         mainServer = new ServerMain();
-
         syn = new Synchronize(mainServer);
 
     }

@@ -84,73 +84,72 @@ public class Peer
 
 
     public String operation(Document received_document) throws IOException, NoSuchAlgorithmException {
-        if(received_document.getString("command").equals("HANDSHAKE_RESPONSE")){
-            // receive command = handshake_response, from TCPclient
-            return "HandShakeComplete";
-        }
-        else {
+        synchronized (this) {
+            if (received_document.getString("command").equals("HANDSHAKE_RESPONSE")) {
+                // receive command = handshake_response, from TCPclient
+                return "HandShakeComplete";
+            } else {
 
-            Response r = new Response(received_document);
-           
-            String command = received_document.getString("command");
+                Response r = new Response(received_document);
 
-            if(command.contains("REQUEST")) {
-                if (command.equals("FILE_CREATE_REQUEST")) {
+                String command = received_document.getString("command");
 
-                    if(r.pathSafe(received_document) && ! r.nameExist(received_document)) {
+                if (command.contains("REQUEST")) {
+                    if (command.equals("FILE_CREATE_REQUEST")) {
 
-                        ServerMain.fileSystemManager.createFileLoader
-                                (received_document.getString("pathName"),
-                                        r.fd.getString("md5"),
-                                        r.fd.getLong("fileSize"),
-                                        r.fd.getLong("lastModified"));
+                        if (r.pathSafe(received_document) && !r.nameExist(received_document)) {
 
-                        r.message = "File Create request received and byte buffer request sent";
-                        r.status = true;
+                            ServerMain.fileSystemManager.createFileLoader
+                                    (received_document.getString("pathName"),
+                                            r.fd.getString("md5"),
+                                            r.fd.getLong("fileSize"),
+                                            r.fd.getLong("lastModified"));
 
-                        r.position = 0;
-                        long length = r.fd.getLong("fileSize");
-                        int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
+                            r.message = "File Create request received and byte buffer request sent";
+                            r.status = true;
 
-                        if(Configuration.getConfigurationValue("mode").equals("UDP")){
-                            blocksize = Math.min(blocksize,8192);
+                            r.position = 0;
+                            long length = r.fd.getLong("fileSize");
+                            int blocksize = (int) Long.parseLong(Configuration.getConfigurationValue("blockSize"));
+
+                            if (Configuration.getConfigurationValue("mode").equals("UDP")) {
+                                blocksize = Math.min(blocksize, 8192);
+                            }
+
+                            String returnMessage = r.createMessage();
+
+                            long i = length / blocksize + 1;
+
+                            if (i > 1) {
+                                System.out.println("blocksize is" + blocksize);
+                                System.out.println("total length: " + length);
+                            }
+                            for (int j = 0; j < (int) i; j++) {
+                                r.position = j * blocksize;
+                                r.length = Math.min(blocksize, length - j * blocksize);
+                                returnMessage += "longgenb1995";
+                                returnMessage += r.fileByteRequest();
+                                System.out.println("generate" + (j + 1) + " file byte request, position is: " + r.position + "length is:" + r.length);
+                            }
+                            System.out.println(r.message);
+                            return returnMessage;
+
+                        } else {
+                            r.message = "file create request received, path not safe or file exists";
+                            r.status = false;
+                            System.out.println(r.message);
+
+                            return r.createMessage();
                         }
+                    } else if (command.equals("FILE_MODIFY_REQUEST")) {
 
-                        String returnMessage = r.createMessage();
-
-                        long i = length/blocksize + 1;
-
-                        if(i>1){
-                            System.out.println("blocksize is"+ blocksize);
-                            System.out.println("total length: " + length);
-                        }
-                        for(int j = 0; j<(int)i ; j++){
-                            r.position = j * blocksize;
-                            r.length = Math.min(blocksize,length-j*blocksize);
-                            returnMessage += "longgenb1995";
-                            returnMessage += r.fileByteRequest();
-                            System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
-                        }
-                        System.out.println(r.message);
-                        return returnMessage;
-
-                    }else{
-                        r.message = "file create request received, path not safe or file exists";
-                        r.status = false;
-                        System.out.println(r.message);
-
-                        return r.createMessage();
-                    }
-                }else if (command.equals("FILE_MODIFY_REQUEST")) {
-
-                    if(r.pathSafe(received_document) && r.nameExist(received_document)) {
+                        if (r.pathSafe(received_document) && r.nameExist(received_document)) {
 
 
-
-                        ServerMain.fileSystemManager.modifyFileLoader
-                                (received_document.getString("pathName"),
-                                        r.fd.getString("md5"),
-                                        r.fd.getLong("lastModified"));
+                            ServerMain.fileSystemManager.modifyFileLoader
+                                    (received_document.getString("pathName"),
+                                            r.fd.getString("md5"),
+                                            r.fd.getLong("lastModified"));
 
                             r.message = "modify file loader ready";
                             r.status = true;
@@ -158,158 +157,158 @@ public class Peer
                             r.position = 0;
                             r.length = r.fd.getLong("fileSize");
                             long length = r.fd.getLong("fileSize");
-                            int blocksize = (int)Long.parseLong(Configuration.getConfigurationValue("blockSize"));
+                            int blocksize = (int) Long.parseLong(Configuration.getConfigurationValue("blockSize"));
                             String returnMessage = r.fileModifyResponse();
 
-                            long i = length/blocksize + 1;
+                            long i = length / blocksize + 1;
 
-                            if(i>1){
-                                System.out.println("blocksize is"+ blocksize);
+                            if (i > 1) {
+                                System.out.println("blocksize is" + blocksize);
                                 System.out.println("total length: " + length);
                             }
 
-                            for(int j = 0; j<(int)i ; j++){
+                            for (int j = 0; j < (int) i; j++) {
                                 r.position = j * blocksize;
-                                r.length = Math.min(blocksize,length-j*blocksize);
+                                r.length = Math.min(blocksize, length - j * blocksize);
                                 returnMessage += "longgenb1995";
                                 returnMessage += r.fileByteRequest();
-                                System.out.println("generate"+(j+1)+" file byte request, position is: "+r.position+"length is:"+r.length);
+                                System.out.println("generate" + (j + 1) + " file byte request, position is: " + r.position + "length is:" + r.length);
                             }
 
                             System.out.println(r.message);
                             return returnMessage;
 
-                    }else{
-                        r.message = "Path Not Safe or File Not Exists";
-                        r.status = false;
-                        
-                        System.out.println(r.message);
+                        } else {
+                            r.message = "Path Not Safe or File Not Exists";
+                            r.status = false;
 
-                        return r.createMessage();
-                    }
-                }
-                else if(command.equals("FILE_BYTES_REQUEST")) {
+                            System.out.println(r.message);
 
-
-                    ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(
-                            r.fd.getString("md5"),
-                            received_document.getLong("position"),
-                            received_document.getLong("length"));
+                            return r.createMessage();
+                        }
+                    } else if (command.equals("FILE_BYTES_REQUEST")) {
 
 
-                    String bf = Base64.getEncoder().encodeToString(byteBuffer.array());
+                        ByteBuffer byteBuffer = ServerMain.fileSystemManager.readFile(
+                                r.fd.getString("md5"),
+                                received_document.getLong("position"),
+                                received_document.getLong("length"));
 
-                    r.content = bf;
-                    r.message = "successfully read";
-                    r.status = true;
-                    r.position = (int)received_document.getLong("position");
-                    r.length = received_document.getLong("length");
-                    
-                    System.out.println("received a file byte request" + "Position:" + r.position);
-                    return r.fileByteResponse();
 
-                }else if (command.equals("FILE_DELETE_REQUEST")) {
+                        String bf = Base64.getEncoder().encodeToString(byteBuffer.array());
 
-                    if(r.pathSafe(received_document) && r.nameExist(received_document)){
-
-                        ServerMain.fileSystemManager.deleteFile(
-                                received_document.getString("pathName"),
-                                r.fd.getLong("lastModified"),
-                                r.fd.getString("md5"));
+                        r.content = bf;
+                        r.message = "successfully read";
                         r.status = true;
-                        r.message = "file delete succeed";
+                        r.position = (int) received_document.getLong("position");
+                        r.length = received_document.getLong("length");
 
-                    }else{
-                        r.status = false;
-                        r.message = "file delete failed";
+                        System.out.println("received a file byte request" + "Position:" + r.position);
+                        return r.fileByteResponse();
 
-                    }
-                    
-                    System.out.println(r.message);
-                    return r.fileDeleteResponse();
-                }else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
-                    if(!ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))) {
+                    } else if (command.equals("FILE_DELETE_REQUEST")) {
 
-                        ServerMain.fileSystemManager.makeDirectory(received_document.getString("pathName"));
-                        r.message = "directory create succeed";
-                        r.status = true;
-                    }else{
-                        r.message = "directory create failed";
-                        r.status = false;
-                    }
-                    System.out.println(r.message);
-                    return r.directoryCreateResponse();
+                        if (r.pathSafe(received_document) && r.nameExist(received_document)) {
 
-                }else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
-
-                    if(r.pathSafe(received_document) &&
-                            ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))
-                    ) {
-
-                        ServerMain.fileSystemManager.deleteDirectory(received_document.getString("pathName"));
-                        r.message = "directory delete succeed";
-                        r.status = true;
-                    }else{
-                        r.message = "directory delete failed";
-                        r.status = false;
-                    }
-                    
-                    System.out.println(r.message);
-                    return r.directoryDeleteResponse();
-                }else{
-
-                    r.message = "message must contain a command field as string";
-                      System.out.println("invalid protocol is " + command);
-                      
-                    System.out.println(r.message);
-                    return r.invalidProtocol();
-                }
-
-
-            }else if(command.contains("RESPONSE")){
-
-                if(command.equals("FILE_BYTES_RESPONSE")){
-
-                            String content = received_document.getString("content");
-
-                            ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
-
-                            ServerMain.fileSystemManager.writeFile(
+                            ServerMain.fileSystemManager.deleteFile(
                                     received_document.getString("pathName"),
-                                    bf,
-                                    received_document.getLong("position"));
+                                    r.fd.getLong("lastModified"),
+                                    r.fd.getString("md5"));
+                            r.status = true;
+                            r.message = "file delete succeed";
 
-                            if (ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))) {
-                                return "ok";
-                                //返回一个传输成功完成的response 进行后续处理
+                        } else {
+                            r.status = false;
+                            r.message = "file delete failed";
 
-                            } else{
-                                System.out.println("transmitting");
-                                return "ok";
-                            }
+                        }
 
-                }else if(command.equals("FILE_DELETE_RESPONSE") ||
-                        command.equals("FILE_MODIFY_RESPONSE") ||
-                        command.equals("FILE_CREATE_RESPONSE") ||
-                        command.equals("DIRECTORY_CREATE_RESPONSE") ||
-                        command.equals("DIRECTORY_DELETE_RESPONSE") ){
-   
-                    return "ok";
+                        System.out.println(r.message);
+                        return r.fileDeleteResponse();
+                    } else if (command.equals("DIRECTORY_CREATE_REQUEST")) {
+                        if (!ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))) {
 
-                }else{
+                            ServerMain.fileSystemManager.makeDirectory(received_document.getString("pathName"));
+                            r.message = "directory create succeed";
+                            r.status = true;
+                        } else {
+                            r.message = "directory create failed";
+                            r.status = false;
+                        }
+                        System.out.println(r.message);
+                        return r.directoryCreateResponse();
+
+                    } else if (command.equals("DIRECTORY_DELETE_REQUEST")) {
+
+                        if (r.pathSafe(received_document) &&
+                                ServerMain.fileSystemManager.dirNameExists(received_document.getString("pathName"))
+                        ) {
+
+                            ServerMain.fileSystemManager.deleteDirectory(received_document.getString("pathName"));
+                            r.message = "directory delete succeed";
+                            r.status = true;
+                        } else {
+                            r.message = "directory delete failed";
+                            r.status = false;
+                        }
+
+                        System.out.println(r.message);
+                        return r.directoryDeleteResponse();
+                    } else {
+
+                        r.message = "message must contain a command field as string";
+                        System.out.println("invalid protocol is " + command);
+
+                        System.out.println(r.message);
+                        return r.invalidProtocol();
+                    }
+
+
+                } else if (command.contains("RESPONSE")) {
+
+                    if (command.equals("FILE_BYTES_RESPONSE")) {
+
+                        String content = received_document.getString("content");
+
+                        ByteBuffer bf = ByteBuffer.wrap(Base64.getDecoder().decode(content));
+
+                        ServerMain.fileSystemManager.writeFile(
+                                received_document.getString("pathName"),
+                                bf,
+                                received_document.getLong("position"));
+
+                        if (ServerMain.fileSystemManager.checkWriteComplete(received_document.getString("pathName"))) {
+                            return "ok";
+                            //返回一个传输成功完成的response 进行后续处理
+
+                        } else {
+                            System.out.println("transmitting");
+                            return "ok";
+                        }
+
+                    } else if (command.equals("FILE_DELETE_RESPONSE") ||
+                            command.equals("FILE_MODIFY_RESPONSE") ||
+                            command.equals("FILE_CREATE_RESPONSE") ||
+                            command.equals("DIRECTORY_CREATE_RESPONSE") ||
+                            command.equals("DIRECTORY_DELETE_RESPONSE")) {
+
+                        return "ok";
+
+                    } else {
+                        r.message = "message must contain a command field as string";
+                        System.out.println("invalid protocol is " + command);
+                        System.out.println(r.message);
+                        return r.invalidProtocol();
+                    }
+
+                } else {
                     r.message = "message must contain a command field as string";
                     System.out.println("invalid protocol is " + command);
                     System.out.println(r.message);
                     return r.invalidProtocol();
                 }
 
-                }else{
-                r.message = "message must contain a command field as string";
-                 System.out.println("invalid protocol is " + command);
-                 System.out.println(r.message);
-                return r.invalidProtocol();
             }
-
         }
     }
 }

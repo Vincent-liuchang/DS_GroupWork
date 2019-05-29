@@ -131,9 +131,7 @@ public class TCPserver extends Thread{
 							}
 						} else {
 							String anbMessage = new Peer().operation(received);
-							System.out.println("server sent:"+anbMessage);
 							if(anbMessage.contains("longgenb1995")){
-
 								String[] message = anbMessage.split("longgenb1995");
 
 								for(String m : message){
@@ -145,7 +143,6 @@ public class TCPserver extends Thread{
 							}else {
 
 								if (!anbMessage.equals("ok")) {
-									System.out.println("TCPserver received from client: " + new Peer().operation((received)) + "\n");
 									out.write(anbMessage + "\n");
 									out.flush();
 								}

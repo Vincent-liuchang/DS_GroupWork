@@ -70,13 +70,18 @@ public class UDPserver extends Thread{
                         handshake.append("hostPort", hostport.toDoc().toJson());
                         System.out.println(hostport.toDoc());
                         this.send(handshake.toJson(),host);
+
+                        if(!Peer.syn.isAlive()){
+                            Peer.syn.start();
+                            System.out.println("Connected to the peer");
+                            System.out.println("Synchronize service start");
+                        }
                     }
                 }
                 else {
                     response = new Operator().operation(received_message);
                     System.out.println(response.length());
                     if (response.contains("longgenb1995")) {
-                        System.out.println("收到了filebyterequest");
                         String re[] = response.split("longgenb1995");
                         for (String i : re) {
                             peer.clientToServer(host.host,i);

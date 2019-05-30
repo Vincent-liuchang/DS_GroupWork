@@ -39,7 +39,7 @@ public class Peer extends Thread
 
     protected ArrayList<TCPclient> clientList = new ArrayList<>();
     private TCPserver TCPserver;
-    private UDPclient UDPclient;
+    protected UDPclient UDPclient;
     private UDPserver UDPserver;
     private int length;
 
@@ -95,9 +95,11 @@ public class Peer extends Thread
 
 
             } else {
-
+                System.out.println(length+" "+UDPserver.onlinePeers.size());
                 if (length != UDPserver.onlinePeers.size()) {
-                    peerHosts.clear();
+                    System.out.println("peer: size " + peerHosts.size() +"first "+ peerHosts.get(0).host +":"+ peerHosts.get(0).port);
+
+                    peerHosts.removeAll(UDPserver.onlinePeers);
                     peerHosts.addAll(UDPserver.onlinePeers);
                     if (!peerstring[0].equals("") && UDPclient == null) {
                         UDPclient = new UDPclient(peerHosts, this);

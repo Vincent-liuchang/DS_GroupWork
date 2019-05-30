@@ -47,6 +47,11 @@ public class UDPclient extends Thread {
 
                 if (response.equals("HandShakeComplete")) {
                     System.out.println("HandShake Response Received, connected");
+                    if(!peer.syn.isAlive()){
+                        peer.syn.start();
+                        System.out.println("Connected to the peer");
+                        System.out.println("Synchronize service start");
+                    }
                 }  else if (!response.equals("ok")) {
                     System.out.println(response);
                 }
@@ -79,23 +84,6 @@ public class UDPclient extends Thread {
             e.printStackTrace();
         }
     }
-
-//    public void sendToOtherPeers(String message){
-//        try {
-//            peers.removeAll(onlinePeers);
-//            peers.addAll(onlinePeers);
-//            for(HostPort ip: peers){
-//                byte[] buffer = message.getBytes();
-//                DatagramPacket request = new DatagramPacket(buffer,buffer.length,InetAddress.getByName(ip.host),ip.port);
-//                clientSocket.send(request);
-//            }
-//
-//        } catch (UnknownHostException e){
-//            System.out.println("not all host online");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public void sendToServer(String ip,String message){
         try {

@@ -59,6 +59,8 @@ public class Peer extends Thread
             UDPserver.start();
         }
 
+        System.out.println("peer has peers "+peerHosts.size()+" " +peerHosts.get(0).host + "sercersize "+TCPserver.serverlist.size()+"length"+length);
+
 
         while(true){
 //            System.out.println("check if there are new peers");
@@ -73,6 +75,7 @@ public class Peer extends Thread
                         for (HostPort hostport : peerHosts) {
                             TCPclient client = new TCPclient(hostport, this);
                             clientList.add(client);
+                            System.out.println("new client "+client.ip);
                             if (!peerHosts.equals("")) {
                                 client.start();
                             }
@@ -112,6 +115,7 @@ public class Peer extends Thread
 
         if(mode.equals("TCP")){
             for(TCPclient t:clientList) {
+                System.out.println("作为client我发了byterequest");
                 t.sendtoServer(message);
             }
         }

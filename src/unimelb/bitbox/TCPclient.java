@@ -35,15 +35,15 @@ public class TCPclient extends Thread {
 
 	public TCPclient(HostPort hostPort, Peer peer){
 		this.hostport = hostPort;
-		this.ip = hostport.host.replace("/","");
+		this.ip = hostport.host;
 		this.port = hostport.port;
 		this.peer = peer;
 	}
-	
+
+
 	public void run() {
 		try{
 			String received = null;
-
 			Socket socket = new Socket(ip, port);
 				this.socket = socket;
 				//Get the input/output streams for reading/writing data from/to the socket
@@ -122,7 +122,6 @@ public class TCPclient extends Thread {
             try {
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
 				System.out.println("Local send: " + message);
-
                 out.write(message+"\n");
                 out.flush();
             }

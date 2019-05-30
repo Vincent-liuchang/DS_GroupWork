@@ -106,7 +106,13 @@ public class TCPserver extends Thread{
 						out.write(handshake.toJson() + "\n");
 						out.flush();
 						System.out.println("HandShake Request Accepted");
-						serverlist.add(new HostPort(Document.parse(received.getString("hostPort"))));
+
+						HostPort hp = new HostPort(Document.parse(received.getString("hostPort")));
+						hp.host = hp.host.replace("/","");
+						serverlist.add(hp);
+
+						System.out.println("server has online peers"+serverlist.size());
+						System.out.println("server "+serverlist.get(0).host);
 
 					} else {
 						Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));
@@ -129,7 +135,7 @@ public class TCPserver extends Thread{
 
 						for (String m : message) {
 							Document receive = Document.parse(m);
-							peer.clientToServer(clientSocket.getInetAddress().toString().replace("/",""),m);
+							peer.clientToServer(clientSocket.getInetAddress().toString(),m);
 						}
 
 					} else {

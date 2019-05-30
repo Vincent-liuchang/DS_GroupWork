@@ -6,7 +6,7 @@ import unimelb.bitbox.util.FileSystemManager;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-public class Response {
+public class JasonCreator {
 
     private FileSystemManager fm = ServerMain.fileSystemManager;
     private Document reply;
@@ -20,9 +20,7 @@ public class Response {
     protected String content;
 
 
-
-
-    public Response(Document received_document) {
+    public JasonCreator(Document received_document) {
         this.received_document = received_document;
         if (received_document.toJson().contains("fileDescriptor")){
             this.fd = Document.parse(received_document.getString("fileDescriptor"));
@@ -174,12 +172,9 @@ public class Response {
     }
 
 
-
-    public String getResponceMessage(){
-        return reply.toJson();
-    }
-
     public boolean pathSafe(Document received_document){
+        if(received_document.getString("pathName").contains(".DS_Store"))
+            return false;
         return fm.isSafePathName(received_document.getString("pathName"));
     }
 

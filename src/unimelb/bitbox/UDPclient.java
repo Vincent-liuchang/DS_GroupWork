@@ -12,14 +12,13 @@ import java.util.ArrayList;
 public class UDPclient extends Thread {
 
     private ArrayList<HostPort> peers;
-    private ArrayList<HostPort> onlinePeers = new ArrayList<>();
+    protected ArrayList<HostPort> onlinePeers = new ArrayList<>();
     private DatagramSocket clientSocket;
-    private byte[] buffer = new byte[15000];
-    private DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
+    private Peer peer;
 
-    public UDPclient(ArrayList<HostPort> peers) {
+    public UDPclient(ArrayList<HostPort> peers, Peer peer) {
         this.peers = peers;
-
+        this.peer =peer;
     }
 
     @Override
@@ -35,31 +34,21 @@ public class UDPclient extends Thread {
         try {
             System.out.println("Local clients ready for accept");
             while(true) {
+                byte[] buffer = new byte[15000];
+                DatagramPacket reply = new DatagramPacket(buffer,buffer.length);
                 clientSocket.receive(reply);
-                InetAddress host = reply.getAddress();
 
                 String received = new String(reply.getData()).trim();
+                System.out.println("mei zhuan de"+received);
                 Document received_message = Document.parse(received);
-                String response = new Peer().operation(received_message);
+                System.out.println(received_message.toJson());
+                String response = new Operator().operation(received_message);
 
 
                 if (response.equals("HandShakeComplete")) {
-                    String ip = reply.getAddress().getHostAddress();
-                    System.out.println("HandShake Response Received, the server is" + ip);
-                    onlinePeers.add(new HostPort(ip,reply.getPort()));
-                } else if (response.contains("longgenb1995")) {
-                    String re[] = response.split("longgenb1995");
-                    for (String i : re) {
-                        byte[] buf = i.getBytes();
-                        DatagramPacket request = new DatagramPacket(buf, buf.length, host, reply.getPort());
-                        clientSocket.send(request);
-                        System.out.println("1 UDP packet sent");
-                    }
-                } else if (!response.equals("ok")) {
-                    byte[] buf = response.getBytes();
-                    DatagramPacket request = new DatagramPacket(buf, buf.length, host, reply.getPort());
-                    clientSocket.send(request);
-                    System.out.println("client sent" + response);
+                    System.out.println("HandShake Response Received, connected");
+                }  else if (!response.equals("ok")) {
+                    System.out.println(response);
                 }
             }
 
@@ -91,19 +80,39 @@ public class UDPclient extends Thread {
         }
     }
 
-    public void sendtoServer(String message){
-        try {
-            peers.removeAll(onlinePeers);
-            peers.addAll(onlinePeers);
-            for(HostPort ip: peers){
-                byte[] buffer = message.getBytes();
-                DatagramPacket request = new DatagramPacket(buffer,buffer.length,InetAddress.getByName(ip.host),ip.port);
-                clientSocket.send(request);
-                System.out.println("client sent"+message+ " to "+ ip.toDoc().toJson());
-            }
+//    public void sendToOtherPeers(String message){
+//        try {
+//            peers.removeAll(onlinePeers);
+//            peers.addAll(onlinePeers);
+//            for(HostPort ip: peers){
+//                byte[] buffer = message.getBytes();
+//                DatagramPacket request = new DatagramPacket(buffer,buffer.length,InetAddress.getByName(ip.host),ip.port);
+//                clientSocket.send(request);
+//            }
+//
+//        } catch (UnknownHostException e){
+//            System.out.println("not all host online");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-        } catch (UnknownHostException e){
-            System.out.println("not all host online");
+    public void sendToServer(String ip,String message){
+        try {
+
+            HostPort hostPort = null;
+            onlinePeers.removeAll(peer.peerHosts);
+            onlinePeers.addAll(peer.peerHosts);
+            for(HostPort host: onlinePeers){
+                if(host.host.equals(ip))
+                    hostPort = host;
+            }
+            if(hostPort!= null) {
+                System.out.println("client发了");
+                System.out.println(message.getBytes().length);
+                DatagramPacket request = new DatagramPacket( message.getBytes(),  message.getBytes().length, InetAddress.getByName(hostPort.host), hostPort.port);
+                clientSocket.send(request);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

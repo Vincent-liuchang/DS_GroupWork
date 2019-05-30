@@ -24,19 +24,21 @@ public class TCPserver extends Thread{
 	private int port;
 	// Identifies the user number connected
 	private int counter = 0 ;
-	
-	private ArrayList<Socket> Socketlist = new ArrayList<Socket>();
-	private ArrayList<HostPort> serverlist = new ArrayList<>();
 
-	public TCPserver(int port){
+	private Peer peer;
+	private ArrayList<Socket> Socketlist = new ArrayList<Socket>();
+	protected ArrayList<HostPort> serverlist = new ArrayList<>();
+
+	public TCPserver(int port, Peer peer){
 		this.port = port;
+		this.peer =peer;
 	}
 	
 	public void run(){
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
 		try(ServerSocket server = factory.createServerSocket(port)){
 			ip = server.getInetAddress().toString();
-			System.out.println("Waiting for client connection..");
+			System.out.println("Waiting for peer connection..");
 			
 			// Wait for connections.
 			while(true){
@@ -53,10 +55,8 @@ public class TCPserver extends Thread{
 
 				Socketlist.add(client);
 				System.out.println("Now the server has " + Socketlist.size() + " clients"+"\n");
-
 				System.out.println("TCPclient "+counter+": Applying for connection!"+"\n");
-				
-				
+
 				// Start a new thread for a connection
 				Thread t = new Thread(() -> serveClient(client));
 				t.start();
@@ -74,91 +74,83 @@ public class TCPserver extends Thread{
 			//Listen for incoming connections for ever
 
 
-				System.out.println("Client1 connection number " + counter + " accepted:");
-				System.out.println("Remote Port: " + clientSocket.getPort());
-				System.out.println("Remote Hostname: " + clientSocket.getInetAddress().getHostName());
-				System.out.println("Local Port: " + clientSocket.getLocalPort());
-				System.out.println("Connection established"+"\n");
+			System.out.println("Client1 connection number " + counter + " accepted:");
+			System.out.println("Remote Port: " + clientSocket.getPort());
+			System.out.println("Remote Hostname: " + clientSocket.getInetAddress().getHostName());
+			System.out.println("Local Port: " + clientSocket.getLocalPort());
+			System.out.println("Connection established" + "\n");
 
-				//Get the input/output streams for reading/writing data from/to the socket
-				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
-
-
-				//Read the message from the client and reply
-				//Notice that no other connection can be accepted and processed until the last line of
-				//code of this loop is executed, incoming connections have to wait until the current
-				//one is processed unless...we use threads!
-
-				String clientMsg;
-				while ((clientMsg = in.readLine()) !=  null) {
+			//Get the input/output streams for reading/writing data from/to the socket
+			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
 
 
-					if (!clientMsg.contains("_")) {
-						System.out.println(clientMsg);
+			//Read the message from the client and reply
+			//Notice that no other connection can be accepted and processed until the last line of
+			//code of this loop is executed, incoming connections have to wait until the current
+			//one is processed unless...we use threads!
+
+			String clientMsg;
+			while ((clientMsg = in.readLine()) != null) {
+
+				Document received = Document.parse(clientMsg);
+				if (received.get("command").equals("HANDSHAKE_REQUEST")) {
+
+					System.out.println("HandShake Request received, Connecting...");
+
+					if (Socketlist.size() <= Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))) {
+						Document handshake = new Document();
+						handshake.append("command", "HANDSHAKE_RESPONSE");
+						HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
+						handshake.append("hostPort", hostport.toDoc().toJson());
+						out.write(handshake.toJson() + "\n");
+						out.flush();
+						System.out.println("HandShake Request Accepted");
+						serverlist.add(new HostPort(Document.parse(received.getString("hostPort"))));
+
 					} else {
-						Document received = Document.parse(clientMsg);
-						if (received.get("command").equals("HANDSHAKE_REQUEST")) {
-//							if(!Peer.syn.isAlive()){
-//								Peer.syn.start();
-//								System.out.println("Synchronize service start");
-//							}
-							System.out.println("HandShake Request Accepted by TCPserver");
+						Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));
+						Document handshake = new Document();
+						handshake.append("command", "CONNECTION_REFUSED");
+						handshake.append("message", "connection limit reached");
+						ArrayList<Document> peers = new ArrayList<Document>();
+						for (HostPort s : serverlist) {
+							peers.add(s.toDoc());
+						}
+						handshake.append("peers", peers);
+						out.write(handshake.toJson() + "\n");
+						out.flush();
+						System.out.println("HandShake Request refused");
+					}
+				} else {
+					String anbMessage = new Operator().operation(received);
+					if (anbMessage.contains("longgenb1995")) {
+						String[] message = anbMessage.split("longgenb1995");
 
-							if (Socketlist.size() <= Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))) {
-								Document handshake = new Document();
-								handshake.append("command", "HANDSHAKE_RESPONSE");
-								HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
-								handshake.append("hostPort", hostport.toDoc().toJson());
-								out.write(handshake.toJson() + "\n");
-								out.flush();
-								System.out.println("HandShake Response Sent"+"\n");
-								serverlist.add(new HostPort(Document.parse(received.getString("hostPort"))));
+						for (String m : message) {
+							Document receive = Document.parse(m);
+							peer.clientToServer(clientSocket.getInetAddress().toString().replace("/",""),m);
+						}
 
-							} else {
-								Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));
-								Document handshake = new Document();
-								handshake.append("command", "CONNECTION_REFUSED");
-								handshake.append("message", "connection limit reached");
-								ArrayList<Document> peers = new ArrayList<Document>();
-								for (HostPort s : serverlist) {
-									peers.add(s.toDoc());
-								}
-								handshake.append("peers", peers);
+					} else {
 
-								out.write(handshake.toJson() + "\n");
-								out.flush();
-							}
-						} else {
-							String anbMessage = new Peer().operation(received);
-							if(anbMessage.contains("longgenb1995")){
-								String[] message = anbMessage.split("longgenb1995");
-
-								for(String m : message){
-									Document receive = Document.parse(m);
-									out.write(receive.toJson()+"\n");
-									out.flush();
-								}
-
-							}else {
-
-								if (!anbMessage.equals("ok")) {
-									out.write(anbMessage + "\n");
-									out.flush();
-								}
-							}
+						if (!anbMessage.equals("ok")) {
+							out.write(anbMessage + "\n");
+							out.flush();
 						}
 					}
-
-
 				}
 
 
-		}catch(SocketException e){
+			}
 
-			System.out.println("Socketlist need to be update");
+		}catch (ClassCastException e){
+			System.out.println("receive a invalid protocol");
+
+		}catch(SocketException e){
+			System.out.println("1 client off line");
+			System.out.println("onlinepeer list need to be update:");
 			System.out.println(Socketlist.toString());
-			System.out.println("client off line");
 
 		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();

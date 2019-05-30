@@ -67,18 +67,18 @@ public class Peer extends Thread
             if (mode.equals("TCP")) {
 
                 if (length != TCPserver.serverlist.size()){
-                        System.out.println("start a connecting to other peers");
-                        peerHosts.removeAll(TCPserver.serverlist);
-                        peerHosts.addAll(TCPserver.serverlist);
+                    System.out.println("start a connecting to other peers");
+                    peerHosts.removeAll(TCPserver.serverlist);
+                    peerHosts.addAll(TCPserver.serverlist);
 
-                        for (HostPort hostport : peerHosts) {
-                            TCPclient client = new TCPclient(hostport, this);
-                            clientList.add(client);
-                            if (!peerHosts.equals("")) {
-                                client.start();
-                            }
+                    for (HostPort hostport : peerHosts) {
+                        TCPclient client = new TCPclient(hostport, this);
+                        clientList.add(client);
+                        if (!peerHosts.equals("")) {
+                            client.start();
                         }
-                        length = TCPserver.serverlist.size();
+                    }
+                    length = TCPserver.serverlist.size();
                 }
 
 
@@ -133,4 +133,3 @@ public class Peer extends Thread
     }
 
 }
-

@@ -39,9 +39,7 @@ public class UDPclient extends Thread {
                 clientSocket.receive(reply);
 
                 String received = new String(reply.getData()).trim();
-                System.out.println("mei zhuan de"+received);
                 Document received_message = Document.parse(received);
-                System.out.println(received_message.toJson());
                 String response = new Operator().operation(received_message);
 
 
@@ -108,8 +106,6 @@ public class UDPclient extends Thread {
                     hostPort = host;
             }
             if(hostPort!= null) {
-                System.out.println("client发了");
-                System.out.println(message.getBytes().length);
                 DatagramPacket request = new DatagramPacket( message.getBytes(),  message.getBytes().length, InetAddress.getByName(hostPort.host), hostPort.port);
                 clientSocket.send(request);
             }

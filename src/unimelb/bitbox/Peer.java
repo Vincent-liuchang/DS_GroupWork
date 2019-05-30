@@ -61,7 +61,7 @@ public class Peer extends Thread
 
 
         while(true){
-            System.out.println("check if there are new peers");
+//            System.out.println("check if there are new peers");
 
             if (mode.equals("TCP")) {
 
@@ -98,11 +98,11 @@ public class Peer extends Thread
                     length = UDPserver.onlinePeers.size();
                 }
             }
-            try {
-                Thread.sleep(5*1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(5*1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
 
         //configuration into peerHost

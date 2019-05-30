@@ -24,14 +24,7 @@ public class TCPclient extends Thread {
 	private ArrayList<HostPort> iplist;
 	private Socket socket;
 	private Peer peer;
-	
-//	public TCPclient(ArrayList<HostPort> iplist){
-//
-//		this.iplist = iplist;
-//		hostport = iplist.get(0);
-//		this.ip = hostport.host;
-//		this.port = hostport.port;
-//	}
+
 
 	public TCPclient(HostPort hostPort, Peer peer){
 		this.hostport = hostPort;
@@ -67,8 +60,8 @@ public class TCPclient extends Thread {
 						System.out.println("HandShake Response Received, the server is: " + ip);
 //						peer.TCPclientlist.add(this);
 
-						if(!Peer.syn.isAlive()){
-							Peer.syn.start();
+						if(!peer.syn.isAlive()){
+							peer.syn.start();
 							System.out.println("Connected to the peer");
 							System.out.println("Synchronize service start");
 						}
@@ -79,9 +72,7 @@ public class TCPclient extends Thread {
 	            }
 		    
 		}
-		catch (BindException e){
-			Thread.interrupted();
-		}
+
 		catch (ClassCastException e){
 			System.out.println("received invalid protocol");
 		}

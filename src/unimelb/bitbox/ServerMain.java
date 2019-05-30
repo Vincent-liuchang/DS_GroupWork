@@ -13,7 +13,7 @@ import unimelb.bitbox.util.FileSystemManager.FileSystemEvent;
 public class ServerMain implements FileSystemObserver {
 	private static Logger log = Logger.getLogger(ServerMain.class.getName());
 	protected static FileSystemManager fileSystemManager;
-	private Peer peer = new Peer() ;
+	protected Peer peer = new Peer() ;
 
 
 

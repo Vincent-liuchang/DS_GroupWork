@@ -16,7 +16,7 @@ public class Peer extends Thread
 {
     static protected ServerMain mainServer;
     private static Logger log = Logger.getLogger(Peer.class.getName());
-    protected static Synchronize syn;
+    protected  Synchronize syn;
 
     public static void main( String[] args ) throws IOException, NumberFormatException, NoSuchAlgorithmException, InterruptedException
     {
@@ -26,7 +26,7 @@ public class Peer extends Thread
         Configuration.getConfiguration();
 
         mainServer = new ServerMain();
-        syn = new Synchronize(mainServer);
+        mainServer.peer.syn = new Synchronize(mainServer);
 
     }
 
@@ -48,6 +48,7 @@ public class Peer extends Thread
         for (String i : peers) {
             peerHosts.add(new HostPort(i));
         }
+        peers.clear();
         length = peerHosts.size();
 
         if (mode.equals("TCP")) {
@@ -58,24 +59,35 @@ public class Peer extends Thread
             UDPserver = new UDPserver(port, this);
             UDPserver.start();
         }
-        System.out.println(length);
-        System.out.println(peerHosts.size());
-        System.out.println(UDPserver.onlinePeers.size());
 
         while(true){
 
             if (mode.equals("TCP")) {
-
+                System.out.println(length+" "+TCPserver.serverlist.size());
                 if (length != TCPserver.serverlist.size()){
+                    System.out.println("peer: size " + peerHosts.size() +"first "+ peerHosts.get(0).host +":"+ peerHosts.get(0).port);
+                    if(TCPserver.serverlist.size()!=0)
+                        System.out.println(TCPserver.serverlist.size()+" "+ TCPserver.serverlist.get(0)+peerHosts.get(0).port);
+
                     System.out.println("start a connecting to other peers");
+
+//                    System.out.println(TCPserver.serverlist.toString());
+//                    System.out.println(peerHosts.toString());
+
                     peerHosts.removeAll(TCPserver.serverlist);
                     peerHosts.addAll(TCPserver.serverlist);
+//
+//                    System.out.println(TCPserver.serverlist.toString());
+//                    System.out.println(peerHosts.toString());
 
                     for (HostPort hostport : peerHosts) {
-                        TCPclient client = new TCPclient(hostport, this);
-                        clientList.add(client);
-                        if (!peerHosts.equals("")) {
-                            client.start();
+                        if(!peers.contains(hostport.host)) {
+                            TCPclient client = new TCPclient(hostport, this);
+                            clientList.add(client);
+                            peers.add(client.ip);
+                            if (!peerHosts.equals("")) {
+                                client.start();
+                            }
                         }
                     }
                     length = TCPserver.serverlist.size();
@@ -85,7 +97,7 @@ public class Peer extends Thread
             } else {
 
                 if (length != UDPserver.onlinePeers.size()) {
-                    peerHosts.removeAll(UDPserver.onlinePeers);
+                    peerHosts.clear();
                     peerHosts.addAll(UDPserver.onlinePeers);
                     if (!peerstring[0].equals("") && UDPclient == null) {
                         UDPclient = new UDPclient(peerHosts, this);
@@ -98,6 +110,11 @@ public class Peer extends Thread
                     }
                     length = UDPserver.onlinePeers.size();
                 }
+            }
+            try {
+                Thread.sleep(5*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 

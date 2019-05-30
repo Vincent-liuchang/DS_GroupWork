@@ -28,7 +28,7 @@ public class TCPclient extends Thread {
 
 	public TCPclient(HostPort hostPort, Peer peer){
 		this.hostport = hostPort;
-		this.ip = hostport.host;
+		this.ip = hostport.host.replace("/","");
 		this.port = hostport.port;
 		this.peer = peer;
 	}

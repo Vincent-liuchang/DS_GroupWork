@@ -71,11 +71,11 @@ public class UDPserver extends Thread{
                         System.out.println(hostport.toDoc());
                         this.send(handshake.toJson(),host);
 
-                        if(!Peer.syn.isAlive()){
-                            Peer.syn.start();
-                            System.out.println("Connected to the peer");
-                            System.out.println("Synchronize service start");
-                        }
+//                        if(!Peer.syn.isAlive()){
+//                            Peer.syn.start();
+//                            System.out.println("Connected to the peer");
+//                            System.out.println("Synchronize service start");
+//                        }
                     }
                 }
                 else {

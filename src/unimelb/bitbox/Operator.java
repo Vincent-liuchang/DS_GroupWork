@@ -26,14 +26,14 @@ public class Operator {
 
                         if (r.pathSafe(received_document) && !r.nameExist(received_document)) {
 
-                            ServerMain.fileSystemManager.createFileLoader
+                            r.status = ServerMain.fileSystemManager.createFileLoader
                                     (received_document.getString("pathName"),
                                             r.fd.getString("md5"),
                                             r.fd.getLong("fileSize"),
                                             r.fd.getLong("lastModified"));
 
                             r.message = "File Create request received and byte buffer request sent";
-                            r.status = true;
+//                            r.status = true;
 
                             r.position = 0;
                             long length = r.fd.getLong("fileSize");
@@ -45,20 +45,23 @@ public class Operator {
 
                             String returnMessage = r.createMessage();
 
-                            long i = length / blocksize + 1;
+                            if(r.status){
+                                long i = length / blocksize + 1;
 
-                            if (i > 1) {
-                                System.out.println("blocksize is" + blocksize);
-                                System.out.println("total length: " + length);
+                                if (i > 1) {
+                                    System.out.println("blocksize is" + blocksize);
+                                    System.out.println("total length: " + length);
+                                }
+                                for (int j = 0; j < (int) i; j++) {
+                                    r.position = j * blocksize;
+                                    r.length = Math.min(blocksize, length - j * blocksize);
+                                    returnMessage += "longgenb1995";
+                                    returnMessage += r.fileByteRequest();
+                                    System.out.println("generate" + (j + 1) + " file byte request, position is: " + r.position + "length is:" + r.length);
+                                }
+                                System.out.println(r.message);
                             }
-                            for (int j = 0; j < (int) i; j++) {
-                                r.position = j * blocksize;
-                                r.length = Math.min(blocksize, length - j * blocksize);
-                                returnMessage += "longgenb1995";
-                                returnMessage += r.fileByteRequest();
-                                System.out.println("generate" + (j + 1) + " file byte request, position is: " + r.position + "length is:" + r.length);
-                            }
-                            System.out.println(r.message);
+
                             return returnMessage;
 
                         } else {

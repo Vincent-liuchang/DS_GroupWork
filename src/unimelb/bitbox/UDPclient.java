@@ -47,11 +47,11 @@ public class UDPclient extends Thread {
 
                 if (response.equals("HandShakeComplete")) {
                     System.out.println("HandShake Response Received, connected");
-                    if(!peer.syn.isAlive()){
-                        peer.syn.start();
-                        System.out.println("Connected to the peer");
-                        System.out.println("Synchronize service start");
-                    }
+//                    if(!peer.syn.isAlive()){
+//                        peer.syn.start();
+//                        System.out.println("Connected to the peer");
+//                        System.out.println("Synchronize service start");
+//                    }
                 }  else if (!response.equals("ok")) {
                     System.out.println(response);
                 }

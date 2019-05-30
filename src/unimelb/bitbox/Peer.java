@@ -91,6 +91,13 @@ public class Peer extends Thread
                         }
                     }
                     length = TCPserver.serverlist.size();
+                    if(TCPserver.serverlist.size()>0&&clientList.size()>0){
+                        if(!syn.isAlive()){
+                            syn.start();
+                            System.out.println("Connected to the peer");
+                            System.out.println("Synchronize service start");
+                        }
+                    }
                 }
 
 
@@ -112,6 +119,13 @@ public class Peer extends Thread
                     }
                     length = UDPserver.onlinePeers.size();
                 }
+                if(UDPclient.onlinePeers.size()>0&&UDPserver.onlinePeers.size()>0){
+                    if(!syn.isAlive()){
+                        syn.start();
+                        System.out.println("Connected to the peer");
+                        System.out.println("Synchronize service start");
+                    }
+                }
             }
             try {
                 Thread.sleep(5*1000);
@@ -131,7 +145,7 @@ public class Peer extends Thread
             }
         }
         else{
-            for(HostPort hostpot:peerHosts) {
+            for(HostPort hostpot:UDPclient.onlinePeers) {
                 UDPclient.sendToServer(hostpot.host,message);
             }
         }

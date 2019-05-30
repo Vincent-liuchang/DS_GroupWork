@@ -59,15 +59,9 @@ public class TCPclient extends Thread {
 					if(anbMessage.equals("HandShakeComplete")){
 						System.out.println("HandShake Response Received, the server is: " + ip);
 //						peer.TCPclientlist.add(this);
-
-						if(!peer.syn.isAlive()){
-							peer.syn.start();
-							System.out.println("Connected to the peer");
-							System.out.println("Synchronize service start");
-						}
 					}
 					else if(!anbMessage.equals("ok")) {
-						System.out.println("there must be something wrong"+anbMessage);
+						System.out.println(anbMessage);
 					}
 	            }
 		    

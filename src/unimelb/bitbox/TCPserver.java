@@ -113,7 +113,9 @@ public class TCPserver extends Thread{
 								out.write(handshake.toJson() + "\n");
 								out.flush();
 								System.out.println("HandShake Response Sent"+"\n");
-								serverlist.add(new HostPort(Document.parse(received.getString("hostPort"))));
+								HostPort h = new HostPort(Document.parse(received.getString("hostPort")));
+								h.host = h.host.replace("/","");
+								serverlist.add(h);
 
 							} else {
 								Socketlist.remove(Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections")));

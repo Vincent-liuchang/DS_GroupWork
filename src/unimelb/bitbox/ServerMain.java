@@ -20,6 +20,7 @@ public class ServerMain implements FileSystemObserver {
 
 	public ServerMain() throws NumberFormatException, IOException, NoSuchAlgorithmException, InterruptedException {
 		fileSystemManager = new FileSystemManager(Configuration.getConfigurationValue("path"),this);
+
 		peer.start();
 
 	}
@@ -38,7 +39,7 @@ public class ServerMain implements FileSystemObserver {
 			file_create.append("fileDescriptor",file_descriptor.toJson());
 			file_create.append("pathName",fileSystemEvent.pathName);
 			String message = file_create.toJson();
-			peer.Broadcast(message);
+			peer.sentToOtherPeers(message);
 		}else if(fileSystemEvent.event.equals(FileSystemManager.EVENT.FILE_DELETE)){
 			Document file_create = new Document();
 			file_create.append("command", "FILE_DELETE_REQUEST");
@@ -48,19 +49,19 @@ public class ServerMain implements FileSystemObserver {
 			file_create.append("fileDescriptor",file_descriptor.toJson());
 			file_create.append("pathName",fileSystemEvent.pathName);
 			String message = file_create.toJson();
-			peer.Broadcast(message);
+			peer.sentToOtherPeers(message);
 		}else if(fileSystemEvent.event.equals(FileSystemManager.EVENT.DIRECTORY_CREATE)){
 			Document file_create = new Document();
 			file_create.append("command", "DIRECTORY_CREATE_REQUEST");
 			file_create.append("pathName",fileSystemEvent.pathName);
 			String message = file_create.toJson();
-			peer.Broadcast(message);
+			peer.sentToOtherPeers(message);
 		}else if(fileSystemEvent.event.equals(FileSystemManager.EVENT.DIRECTORY_DELETE)) {
 			Document file_create = new Document();
 			file_create.append("command", "DIRECTORY_DELETE_REQUEST");
 			file_create.append("pathName", fileSystemEvent.pathName);
 			String message = file_create.toJson();
-			peer.Broadcast(message);
+			peer.sentToOtherPeers(message);
 		}else if(fileSystemEvent.event.equals(FileSystemManager.EVENT.FILE_MODIFY)){
 			Document file_create = new Document();
 			file_create.append("command", "FILE_MODIFY_REQUEST");
@@ -70,7 +71,7 @@ public class ServerMain implements FileSystemObserver {
 			file_create.append("fileDescriptor",file_descriptor.toJson());
 			file_create.append("pathName",fileSystemEvent.pathName);
 			String message = file_create.toJson();
-			peer.Broadcast(message);
+			peer.sentToOtherPeers(message);
 		}
 	}
 

@@ -26,7 +26,7 @@ public class TCPserver extends Thread{
 	private int counter = 0 ;
 
 	private Peer peer;
-	private ArrayList<Socket> Socketlist = new ArrayList<Socket>();
+	private ArrayList<Socket> Socketlist = new ArrayList<Socket>();` `
 	protected ArrayList<HostPort> serverlist = new ArrayList<>();
 
 	public TCPserver(int port, Peer peer){

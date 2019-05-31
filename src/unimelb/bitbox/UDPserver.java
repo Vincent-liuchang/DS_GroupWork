@@ -55,7 +55,7 @@ public class UDPserver extends Thread{
                     }
                     else{
                         System.out.println("HandShake Request Accepted");
-                        HostPort h = new HostPort(request.getAddress().toString().replace("/",""),(int)Document.parse(received_message.getString("hostPort")).getLong("port"));
+                        HostPort h = new HostPort(request.getAddress().toString().replace("/",""),(int)((Document)received_message.get("hostPort")).getLong("port"));
                         if(!onlinePeers.contains(h))
                             onlinePeers.add(h);
                         if(!peer.UDPclient.onlinePeers.contains(h)){
@@ -67,7 +67,7 @@ public class UDPserver extends Thread{
                         Document handshake = new Document();
                         handshake.append("command", "HANDSHAKE_RESPONSE");
                         HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
-                        handshake.append("hostPort", hostport.toDoc().toJson());
+                        handshake.append("hostPort", hostport.toDoc());
                         System.out.println(hostport.toDoc());
                         this.send(handshake.toJson(),host);
                     }

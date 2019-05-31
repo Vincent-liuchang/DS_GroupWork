@@ -107,7 +107,6 @@ public class TCPclient extends Thread {
             try {
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
 				System.out.println("Local send: " + message);
-
                 out.write(message+"\n");
                 out.flush();
             }

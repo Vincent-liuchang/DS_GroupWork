@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class UDPclient extends Thread {
@@ -15,6 +16,7 @@ public class UDPclient extends Thread {
     protected ArrayList<HostPort> onlinePeers = new ArrayList<>();
     private DatagramSocket clientSocket;
     private Peer peer;
+    private CopyOnWriteArrayList<DatagramPacket> packetList = new CopyOnWriteArrayList<>();
 
     public UDPclient(ArrayList<HostPort> peers, Peer peer) {
         this.peers = peers;
@@ -25,6 +27,9 @@ public class UDPclient extends Thread {
     public void run() {
         try {
             clientSocket = new DatagramSocket();
+            Thread t = new Thread(() -> resent());
+            t.start();
+
             for(HostPort ip: peers){
                 this.handShake(ip);
             }
@@ -39,19 +44,15 @@ public class UDPclient extends Thread {
                 clientSocket.receive(reply);
 
                 String received = new String(reply.getData()).trim();
-                System.out.println("mei zhuan de"+received);
                 Document received_message = Document.parse(received);
                 System.out.println(received_message.toJson());
                 String response = new Operator().operation(received_message);
 
+                this.deleteSuccessPacket(reply.getAddress(),received_message);
 
                 if (response.equals("HandShakeComplete")) {
                     System.out.println("HandShake Response Received, connected");
-//                    if(!peer.syn.isAlive()){
-//                        peer.syn.start();
-//                        System.out.println("Connected to the peer");
-//                        System.out.println("Synchronize service start");
-//                    }
+
                 }  else if (!response.equals("ok")) {
                     System.out.println(response);
                 }
@@ -87,7 +88,6 @@ public class UDPclient extends Thread {
 
     public void sendToServer(String ip,String message){
         try {
-
             HostPort hostPort = null;
             onlinePeers.removeAll(peer.peerHosts);
             onlinePeers.addAll(peer.peerHosts);
@@ -99,11 +99,39 @@ public class UDPclient extends Thread {
                 System.out.println(message.getBytes().length);
                 DatagramPacket request = new DatagramPacket( message.getBytes(),  message.getBytes().length, InetAddress.getByName(hostPort.host), hostPort.port);
                 clientSocket.send(request);
+
                 System.out.println("request saved into list");
+                if(!message.contains("FILE_CREATE_RESPONSE") && !packetList.contains(request)){
+                    packetList.add(request);
+                }
 
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public void deleteSuccessPacket(InetAddress ip, Document received_document){
+        try{
+            for (DatagramPacket dp : packetList) {
+                if (ip.equals(dp.getAddress()) && dp.getData().toString().equals(new Operator().deOperation(received_document))) {
+                    packetList.remove(dp);
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void resent(){
+        for(DatagramPacket d: packetList){
+            this.sendToServer(d.getAddress().getHostName(),d.getData().toString());
+        }
+        try {
+            Thread.sleep(5*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -2,10 +2,11 @@ package unimelb.bitbox;
 
 import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.FileSystemManager;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-public class JasonCreator {
+public class Response {
 
     private FileSystemManager fm = ServerMain.fileSystemManager;
     private Document reply;
@@ -17,14 +18,14 @@ public class JasonCreator {
     protected int position;
     protected long length;
     protected String content;
-    private String aes;
 
 
-    public JasonCreator(Document received_document) {
+
+
+    public Response(Document received_document) {
         this.received_document = received_document;
         if (received_document.toJson().contains("fileDescriptor")){
-
-            this.fd = (Document)received_document.get("fileDescriptor");
+            this.fd = Document.parse(received_document.getString("fileDescriptor"));
         }
         this.command = received_document.getString("command");
         reply = new Document();
@@ -34,7 +35,7 @@ public class JasonCreator {
     public String createMessage(){
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);
@@ -57,7 +58,7 @@ public class JasonCreator {
 
         command = "FILE_BYTES_REQUEST";
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("position", position);
         reply.append("length", length);
@@ -69,7 +70,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("position", position);
         reply.append("length", length);
@@ -85,7 +86,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
 
         return reply.toJson();
@@ -96,7 +97,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);
@@ -109,7 +110,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
 
         return reply.toJson();
@@ -120,7 +121,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd);
+        reply.append("fileDescriptor",fd.toJson());
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);
@@ -171,31 +172,14 @@ public class JasonCreator {
 
         return reply.toJson();
     }
-    
-    //AUTH_REQUEST
-    public String authorizedResponse() {
-         command = command.replace("REQUEST","RESPONSE");
-         reply.append("command", command);
-         reply.append("status", status);
-         reply.append("message", message);
-         
-         return reply.toJson();
-    }
-    
-    public String notAuthorizedResponse() {
-        command = command.replace("REQUEST","RESPONSE");
-         reply.append("command", command);
-         reply.append("status", status);
-         reply.append("message", message);
-         reply.append("AES128", aes);
-         
-         return reply.toJson();
-    }
 
+
+
+    public String getResponceMessage(){
+        return reply.toJson();
+    }
 
     public boolean pathSafe(Document received_document){
-        if(received_document.getString("pathName").contains(".DS_Store"))
-            return false;
         return fm.isSafePathName(received_document.getString("pathName"));
     }
 

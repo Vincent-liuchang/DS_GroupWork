@@ -52,8 +52,8 @@ public class Encryption {
 		cipher.init(Cipher.ENCRYPT_MODE, pubKey);
 		String outStr = Base64.getEncoder().encodeToString(cipher.doFinal(str.getBytes("UTF-8")));
                 byte[] s = str.getBytes("UTF-8");
-                for(int i  =0; i< str.length(); i++)
-                    System.out.println(s[i]);
+//                for(int i  =0; i< str.length(); i++)
+//                    System.out.println(s[i]);
 		return outStr;
 
     }
@@ -72,21 +72,29 @@ public class Encryption {
 	}
     
     public static String AESencrypt(String str, String key ) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
-
+//                key = "5v8y/B?D(G+KbPeS";
+                key = "1234567890123456";
 		Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
 	
 		Cipher cipher = Cipher.getInstance("AES");
 			// Perform encryption
 		cipher.init(Cipher.ENCRYPT_MODE, aesKey);
-		byte[] encrypted = cipher.doFinal(str.getBytes("UTF-8"));
-		return new String(encrypted);
+                ;
+		String outStr = Base64.getEncoder().encodeToString(cipher.doFinal(str.getBytes("UTF-8")));
+                System.err.println("Encrypted message: "+ outStr);
+		return outStr;
 }
     
-    public static String AESdecrypt(String str, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
- 
+    public static String AESdecrypt(String str, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
+                key = "1234567890123456";
     		Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
+                
+               byte[] inputByte = Base64.getDecoder().decode(str);
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.DECRYPT_MODE, aesKey);
-			message = new String(cipher.doFinal(Base64.getDecoder().decode(message.getBytes())));
-			System.err.println("Decrypted message: "+message);
+			String decrypted = new String(cipher.doFinal(inputByte));
+			System.err.println("Decrypted message: "+decrypted);
+                        
+                        return decrypted;
     }
+}

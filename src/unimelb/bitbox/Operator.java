@@ -184,7 +184,12 @@ public class Operator {
 
                         System.out.println(r.message);
                         return r.directoryDeleteResponse();
-                    } else {
+                    }
+//                     else if(command.equals("AUTH_REQUEST")) {
+//                        if(Configuration.getConfigurationValue("authorized_keys").contains(received_document.getString("identity")))
+//                            
+//                    }
+                        else {
 
                         r.message = "message must contain a command field as string";
                         System.out.println("invalid protocol is " + command);

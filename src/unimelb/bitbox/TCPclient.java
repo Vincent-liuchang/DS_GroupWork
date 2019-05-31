@@ -46,7 +46,7 @@ public class TCPclient extends Thread {
 	            Document handshake = new Document();
 	            handshake.append("command","HANDSHAKE_REQUEST");
 				HostPort hostport = new HostPort(socket.getInetAddress().toString(), Integer.parseInt(Configuration.getConfigurationValue("port")));
-				handshake.append("hostPort",hostport.toDoc().toJson());
+				handshake.append("hostPort",hostport.toDoc());
 				out.write(handshake.toJson()+"\n");
 				out.flush();
 

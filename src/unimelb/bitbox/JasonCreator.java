@@ -2,7 +2,6 @@ package unimelb.bitbox;
 
 import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.FileSystemManager;
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -23,7 +22,8 @@ public class JasonCreator {
     public JasonCreator(Document received_document) {
         this.received_document = received_document;
         if (received_document.toJson().contains("fileDescriptor")){
-            this.fd = Document.parse(received_document.getString("fileDescriptor"));
+
+            this.fd = (Document)received_document.get("fileDescriptor");
         }
         this.command = received_document.getString("command");
         reply = new Document();
@@ -33,7 +33,7 @@ public class JasonCreator {
     public String createMessage(){
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd.toJson());
+        reply.append("fileDescriptor",fd);
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);
@@ -56,7 +56,7 @@ public class JasonCreator {
 
         command = "FILE_BYTES_REQUEST";
         reply.append("command", command);
-        reply.append("fileDescriptor",fd.toJson());
+        reply.append("fileDescriptor",fd);
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("position", position);
         reply.append("length", length);
@@ -68,7 +68,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd.toJson());
+        reply.append("fileDescriptor",fd);
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("position", position);
         reply.append("length", length);
@@ -84,7 +84,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd.toJson());
+        reply.append("fileDescriptor",fd);
         reply.append("pathName",received_document.getString("pathName"));
 
         return reply.toJson();
@@ -95,7 +95,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd.toJson());
+        reply.append("fileDescriptor",fd);
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);
@@ -108,7 +108,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd.toJson());
+        reply.append("fileDescriptor",fd);
         reply.append("pathName",received_document.getString("pathName"));
 
         return reply.toJson();
@@ -119,7 +119,7 @@ public class JasonCreator {
 
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
-        reply.append("fileDescriptor",fd.toJson());
+        reply.append("fileDescriptor",fd);
         reply.append("pathName",received_document.getString("pathName"));
         reply.append("message",message);
         reply.append("status",status);

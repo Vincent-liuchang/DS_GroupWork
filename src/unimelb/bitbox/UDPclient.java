@@ -71,7 +71,7 @@ public class UDPclient extends Thread {
             Document handshake = new Document();
             handshake.append("command", "HANDSHAKE_REQUEST");
             HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), Integer.parseInt(Configuration.getConfigurationValue("port")));
-            handshake.append("hostPort", hostport.toDoc().toJson());
+            handshake.append("hostPort", hostport.toDoc());
 
             byte[] buffer = handshake.toJson().getBytes();
             InetAddress host = InetAddress.getByName(ip.host);

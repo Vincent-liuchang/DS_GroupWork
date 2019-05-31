@@ -102,7 +102,7 @@ public class TCPserver extends Thread{
 						Document handshake = new Document();
 						handshake.append("command", "HANDSHAKE_RESPONSE");
 						HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
-						handshake.append("hostPort", hostport.toDoc().toJson());
+						handshake.append("hostPort", hostport.toDoc());
 						out.write(handshake.toJson() + "\n");
 						out.flush();
 						System.out.println("HandShake Request Accepted");

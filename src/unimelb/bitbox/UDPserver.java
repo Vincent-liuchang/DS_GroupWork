@@ -67,7 +67,8 @@ public class UDPserver extends Thread{
                         Document handshake = new Document();
                         handshake.append("command", "HANDSHAKE_RESPONSE");
                         HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
-                        handshake.append("hostPort", hostport.toDoc());
+                        handshake.append("hostPort", hostport.toDoc().toJson());
+                        System.out.println(hostport.toDoc());
                         this.send(handshake.toJson(),host);
                     }
                 }

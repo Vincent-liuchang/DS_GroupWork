@@ -96,14 +96,14 @@ public class UDPclient extends Thread {
                     hostPort = host;
             }
             if(hostPort!= null) {
-                System.out.println("client发了");
                 System.out.println(message.getBytes().length);
                 DatagramPacket request = new DatagramPacket( message.getBytes(),  message.getBytes().length, InetAddress.getByName(hostPort.host), hostPort.port);
                 clientSocket.send(request);
+                System.out.println("request saved into list");
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }

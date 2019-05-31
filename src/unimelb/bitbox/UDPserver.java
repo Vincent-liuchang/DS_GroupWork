@@ -42,6 +42,9 @@ public class UDPserver extends Thread{
                 Document received_message = Document.parse(received);
                 String response;
 
+                System.out.println("123"+received);
+                System.out.println(received_message.toJson());
+
                 if(received_message.getString("command").equals("HANDSHAKE_REQUEST")){
                     if(onlinePeers.size() > Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))){
                         Document handshake = new Document();
@@ -76,7 +79,6 @@ public class UDPserver extends Thread{
                     response = new Operator().operation(received_message);
                     System.out.println(response.length());
                     if (response.contains("longgenb1995")) {
-                        System.out.println("收到了filebyterequest");
                         String re[] = response.split("longgenb1995");
                         for (String i : re) {
                             peer.clientToServer(host.host,i);
@@ -101,7 +103,7 @@ public class UDPserver extends Thread{
 
             DatagramPacket request = new DatagramPacket(message.getBytes(), message.getBytes().length, InetAddress.getByName(host.host), host.port);
             serverSocket.send(request);
-            System.out.println(message);
+//            System.out.println(message);
         }
         catch (UnknownHostException e){
             System.out.println("not all host online");

@@ -4,9 +4,11 @@ import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.HostPort;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -88,33 +90,44 @@ public class UDPclient extends Thread {
 
     public void sendToServer(String ip,String message){
         try {
-            HostPort hostPort = null;
-            onlinePeers.removeAll(peer.peerHosts);
-            onlinePeers.addAll(peer.peerHosts);
-            for(HostPort host: onlinePeers){
-                if(host.host.equals(ip))
-                    hostPort = host;
-            }
-            if(hostPort!= null) {
-                System.out.println(message.getBytes().length);
-                DatagramPacket request = new DatagramPacket( message.getBytes(),  message.getBytes().length, InetAddress.getByName(hostPort.host), hostPort.port);
-                clientSocket.send(request);
-
-                System.out.println("request saved into list");
-                if(!message.contains("FILE_CREATE_RESPONSE") && !packetList.contains(request)){
-                    packetList.add(request);
+            if(message.contains("_")) {
+                HostPort hostPort = null;
+                onlinePeers.removeAll(peer.peerHosts);
+                onlinePeers.addAll(peer.peerHosts);
+                for (HostPort host : onlinePeers) {
+                    if (host.host.equals(ip))
+                        hostPort = host;
                 }
+                if (hostPort != null) {
+                    DatagramPacket request = new DatagramPacket(message.getBytes(), message.getBytes().length, InetAddress.getByName(hostPort.host), hostPort.port);
+                    clientSocket.send(request);
 
+
+                    if (!message.contains("FILE_CREATE_RESPONSE")&&packetExist(request)) {
+                        packetList.add(request);
+                        System.out.println(packetList.size());
+                        System.out.println("request saved into list");
+                    }
+
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    public Boolean packetExist(DatagramPacket p){
+        for(DatagramPacket dp: packetList){
+            if(p.getAddress().equals(dp.getAddress())&& new String(p.getData()).equals(new String(dp.getData()))){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void deleteSuccessPacket(InetAddress ip, Document received_document){
         try{
             for (DatagramPacket dp : packetList) {
-                if (ip.equals(dp.getAddress()) && dp.getData().toString().equals(new Operator().deOperation(received_document))) {
+                if (ip.equals(dp.getAddress()) && new String(dp.getData()).equals(new Operator().deOperation(received_document))) {
                     packetList.remove(dp);
                 }
             }
@@ -125,7 +138,8 @@ public class UDPclient extends Thread {
 
     public void resent(){
         for(DatagramPacket d: packetList){
-            this.sendToServer(d.getAddress().getHostName(),d.getData().toString());
+            System.out.println(d.getData().toString());
+            this.sendToServer(d.getAddress().getHostName(), new String(d.getData()));
         }
         try {
             Thread.sleep(5*1000);

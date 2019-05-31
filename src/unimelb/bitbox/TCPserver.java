@@ -106,8 +106,11 @@ public class TCPserver extends Thread{
 						out.write(handshake.toJson() + "\n");
 						out.flush();
 						System.out.println("HandShake Request Accepted");
-						HostPort h = new HostPort(Document.parse(received.getString("hostPort")));
-						h.host = h.host.replace("/","");
+
+						System.out.println(clientSocket.getInetAddress().toString());
+
+						HostPort h = new HostPort(clientSocket.getInetAddress().toString().split("/")[1],(int)Document.parse(received.getString("hostPort")).getLong("port"));
+						System.out.println(h.toDoc().toJson());
 						serverlist.add(h);
 
 					} else {
@@ -131,7 +134,7 @@ public class TCPserver extends Thread{
 
 						for (String m : message) {
 							Document receive = Document.parse(m);
-							peer.clientToServer(clientSocket.getInetAddress().toString().replace("/",""),m);
+							peer.clientToServer(clientSocket.getInetAddress().toString().split("/")[1],m);
 						}
 
 					} else {

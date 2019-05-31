@@ -46,6 +46,7 @@ public class Peer extends Thread
     public void run(){
 
         for (String i : peers) {
+            if(i.contains(":"))
             peerHosts.add(new HostPort(i));
         }
         peers.clear();
@@ -155,6 +156,7 @@ public class Peer extends Thread
     public void clientToServer(String ip,String message){
         if(mode.equals("TCP")){
             for(TCPclient t:clientList) {
+                System.out.println(t.ip+""+ip);
                 if(t.ip .equals(ip.replace("localhost",""))) {
                     t.sendtoServer(message);
                 }

@@ -72,7 +72,7 @@ public class TCPclient extends Thread {
 		}
 		catch (ConnectException e) {
 			try {
-				System.out.println("this peer's server not online, try in 5 seconds ....");
+				System.out.println("peer's server not online, try in 5 seconds ...." + ip);
 //				if(iplist.indexOf(hostport) != (iplist.size()-1)) {
 //					hostport = iplist.get(iplist.indexOf(hostport) + 1);
 //				}

@@ -108,8 +108,7 @@ public class TCPserver extends Thread{
 						System.out.println("HandShake Request Accepted");
 
 						System.out.println(clientSocket.getInetAddress().toString());
-
-						HostPort h = new HostPort(clientSocket.getInetAddress().toString().split("/")[1],(int)Document.parse(received.getString("hostPort")).getLong("port"));
+						HostPort h = new HostPort(clientSocket.getInetAddress().toString().split("/")[1],(int)((Document)received.get("hostPort")).getLong("port"));
 						System.out.println(h.toDoc().toJson());
 						serverlist.add(h);
 
@@ -150,6 +149,7 @@ public class TCPserver extends Thread{
 			}
 
 		}catch (ClassCastException e){
+			e.printStackTrace();
 			System.out.println("receive a invalid protocol");
 
 		}catch(SocketException e){

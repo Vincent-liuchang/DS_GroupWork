@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class TCPclient extends Thread {
-	
+
 	// IP and port
 	protected String ip;
 	private int port;
@@ -32,39 +32,39 @@ public class TCPclient extends Thread {
 		this.port = hostport.port;
 		this.peer = peer;
 	}
-	
+
 	public void run() {
 		try{
 			String received = null;
 
 			Socket socket = new Socket(ip, port);
-				this.socket = socket;
-				//Get the input/output streams for reading/writing data from/to the socket
-	            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-	            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+			this.socket = socket;
+			//Get the input/output streams for reading/writing data from/to the socket
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
 
-	            Document handshake = new Document();
-	            handshake.append("command","HANDSHAKE_REQUEST");
-				HostPort hostport = new HostPort(socket.getInetAddress().toString(), Integer.parseInt(Configuration.getConfigurationValue("port")));
-				handshake.append("hostPort",hostport.toDoc());
-				out.write(handshake.toJson()+"\n");
-				out.flush();
+			Document handshake = new Document();
+			handshake.append("command","HANDSHAKE_REQUEST");
+			HostPort hostport = new HostPort(socket.getInetAddress().toString(), Integer.parseInt(Configuration.getConfigurationValue("port")));
+			handshake.append("hostPort",hostport.toDoc());
+			out.write(handshake.toJson()+"\n");
+			out.flush();
 
 
-	            //While the user input differs from "exit"
-	            while ((received = in.readLine()) !=null) {
-					Document received_message = Document.parse(received);
-					String anbMessage = new Operator().operation(received_message);
+			//While the user input differs from "exit"
+			while ((received = in.readLine()) !=null) {
+				Document received_message = Document.parse(received);
+				String anbMessage = new Operator().operation(received_message);
 
-					if(anbMessage.equals("HandShakeComplete")){
-						System.out.println("HandShake Response Received, the server is: " + ip);
+				if(anbMessage.equals("HandShakeComplete")){
+					System.out.println("HandShake Response Received, the server is: " + ip);
 //						peer.TCPclientlist.add(this);
-					}
-					else if(!anbMessage.equals("ok")) {
-						System.out.println(anbMessage);
-					}
-	            }
-		    
+				}
+				else if(!anbMessage.equals("ok")) {
+					System.out.println(anbMessage);
+				}
+			}
+
 		}
 
 		catch (ClassCastException e){
@@ -72,13 +72,8 @@ public class TCPclient extends Thread {
 		}
 		catch (ConnectException e) {
 			try {
-				System.out.println("peer's server not online, try in 5 seconds ...." + ip);
-//				if(iplist.indexOf(hostport) != (iplist.size()-1)) {
-//					hostport = iplist.get(iplist.indexOf(hostport) + 1);
-//				}
-//				else{
-//					hostport = iplist.get(0);
-//				}
+				System.out.println("this peer's server not online, try in 5 seconds ....");
+
 				Thread.sleep(5*1000);
 				run();
 			}
@@ -96,29 +91,30 @@ public class TCPclient extends Thread {
 			}
 		}
 		catch(IOException| NoSuchAlgorithmException e){
-				e.printStackTrace();
+			e.printStackTrace();
 		}
 
 	}
 
 	public void sendtoServer(String message){
 
-	    if(socket != null){
-            try {
-                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+		if(socket != null){
+			try {
+				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
 				System.out.println("Local send: " + message);
-                out.write(message+"\n");
-                out.flush();
-            }
-            catch (SocketException  e) {
+
+				out.write(message+"\n");
+				out.flush();
+			}
+			catch (SocketException  e) {
 				System.out.println("a peer's server  offline");
 				run();
 			}
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 
-        }
+		}
 
 
 	}

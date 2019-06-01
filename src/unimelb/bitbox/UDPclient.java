@@ -4,11 +4,9 @@ import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.HostPort;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -106,7 +104,7 @@ public class UDPclient extends Thread {
                     if (!message.contains("FILE_CREATE_RESPONSE")&&packetExist(request)) {
                         packetList.add(request);
                         System.out.println(packetList.size());
-                        System.out.println("request saved into list");
+                        System.out.println("Added!!!!! Current size is "+packetList.size());
                     }
 
                 }
@@ -134,15 +132,17 @@ public class UDPclient extends Thread {
         }catch(Exception e){
             e.printStackTrace();
         }
+        System.out.println("Deleted!!!! Current size is "+packetList.size());
     }
 
     public void resent(){
         while(true) {
+            System.out.println("Current size is "+packetList.size());
             for (DatagramPacket d : packetList) {
                 System.out.println(d.getData().toString());
                 this.sendToServer(d.getAddress().getHostName(), new String(d.getData()));
-                System.out.println();
             }
+            System.out.print("resent done");
             try {
                 Thread.sleep(5 * 1000);
             } catch (InterruptedException e) {

@@ -71,7 +71,7 @@ public class UDPclient extends Thread {
         try {
             Document handshake = new Document();
             handshake.append("command", "HANDSHAKE_REQUEST");
-            HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), Integer.parseInt(Configuration.getConfigurationValue("port")));
+            HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), Integer.parseInt(Configuration.getConfigurationValue("udpPort")));
             handshake.append("hostPort", hostport.toDoc());
 
             byte[] buffer = handshake.toJson().getBytes();
@@ -144,7 +144,7 @@ public class UDPclient extends Thread {
             }
             System.out.print("resent done");
             try {
-                Thread.sleep(5 * 1000);
+                Thread.sleep(Integer.parseInt(Configuration.getConfigurationValue("resentInterval")) * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -3,7 +3,15 @@ package unimelb.bitbox;
 import unimelb.bitbox.util.Document;
 import unimelb.bitbox.util.FileSystemManager;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class JasonCreator {
 
@@ -17,7 +25,8 @@ public class JasonCreator {
     protected int position;
     protected long length;
     protected String content;
-    private String aes;
+    protected String aes;
+    RSAPublicKey rsapub;
 
 
     public JasonCreator(Document received_document) {
@@ -54,7 +63,7 @@ public class JasonCreator {
 
     // FILE_BYTES_REQUEST
     public String fileByteRequest(){
-
+    	reply = new Document();
         command = "FILE_BYTES_REQUEST";
         reply.append("command", command);
         reply.append("fileDescriptor",fd);
@@ -106,7 +115,7 @@ public class JasonCreator {
 
     // FILE_MODIFY_REQUEST
     public String fileModifyRequest(){
-
+    	
         command = command.replace("REQUEST","RESPONSE");
         reply.append("command", command);
         reply.append("fileDescriptor",fd);
@@ -150,6 +159,24 @@ public class JasonCreator {
         return reply.toJson();
     }
 
+    public String authorizedResponse() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException {
+        command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("AES128", Encryption.RSAencrypt(aes, rsapub));
+        reply.append("status", "true");
+        reply.append("message", "public key found");
+        
+        return reply.toJson();
+    }
+    
+    public String notAuthorizedResponse() {
+           command = command.replace("REQUEST","RESPONSE");
+        reply.append("command", command);
+        reply.append("status", "false");
+        reply.append("message", "public key not found");
+        
+        return reply.toJson();
+    }
     // DIRECTORY_DELETE_REQUEST
     public String directoryDeleteRequest(){
 
@@ -170,26 +197,6 @@ public class JasonCreator {
         reply.append("status",status);
 
         return reply.toJson();
-    }
-    
-    //AUTH_REQUEST
-    public String authorizedResponse() {
-         command = command.replace("REQUEST","RESPONSE");
-         reply.append("command", command);
-         reply.append("status", status);
-         reply.append("message", message);
-         
-         return reply.toJson();
-    }
-    
-    public String notAuthorizedResponse() {
-        command = command.replace("REQUEST","RESPONSE");
-         reply.append("command", command);
-         reply.append("status", status);
-         reply.append("message", message);
-         reply.append("AES128", aes);
-         
-         return reply.toJson();
     }
 
 

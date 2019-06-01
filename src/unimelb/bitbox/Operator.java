@@ -184,12 +184,7 @@ public class Operator {
 
                         System.out.println(r.message);
                         return r.directoryDeleteResponse();
-                    }
-//                     else if(command.equals("AUTH_REQUEST")) {
-//                        if(Configuration.getConfigurationValue("authorized_keys").contains(received_document.getString("identity")))
-//                            
-//                    }
-                        else {
+                    } else {
 
                         r.message = "message must contain a command field as string";
                         System.out.println("invalid protocol is " + command);
@@ -245,57 +240,57 @@ public class Operator {
     }
     public String deOperation(Document received_document) throws IOException, NoSuchAlgorithmException,ClassCastException {
         synchronized (this) {
-        	Document returnDocument  = new Document(); 
+            Document returnDocument  = new Document();
             String command = received_document.getString("command");
 
-            System.out.println(command);
-                if (command.equals("FILE_CREATE_RESPONSE")) { 
-                	returnDocument.append("command", "FILE_CREATE_REQUEST");
-        			
-        			returnDocument.append("fileDescriptor",(Document)received_document.get("fileDescriptor"));
-        			returnDocument.append("pathName",received_document.getString("pathName"));
-        			String message = returnDocument.toJson();
-        			return message;
-                } 
-                else if(command.equals("FILE_MODIFY_RESPONSE")) {
-                	returnDocument.append("command", "FILE_MODIFY_REQUEST");
-        			
-                	returnDocument.append("fileDescriptor",(Document)received_document.get("fileDescriptor"));
-        			returnDocument.append("pathName",received_document.getString("pathName"));
-        			String message = returnDocument.toJson();
-        			return message;
-                } else if(command.equals("FILE_DELETE_RESPONSE")) {
 
-                	returnDocument.append("command", "FILE_DELETE_REQUEST");
-                	returnDocument.append("fileDescriptor",(Document)received_document.get("fileDescriptor"));
-        			returnDocument.append("pathName",received_document.getString("pathName"));
-        			String message = returnDocument.toJson();
-        			return message;
-                } else if (command.equals("DIRECTORY_CREATE_RESPONSE")) {
+            if (command.equals("FILE_CREATE_RESPONSE")) {
+                returnDocument.append("command", "FILE_CREATE_REQUEST");
 
-                	returnDocument.append("command", "DIRECTORY_CREATE_REQUEST");
-        			
-                	returnDocument.append("pathName",received_document.getString("pathName"));
-        			String message = returnDocument.toJson();
-        			return message;
-                } else if (command.equals("DIRECTORY_DELETE_RESPONSE")) {
-                	returnDocument.append("command", "DIRECTORY_DELETE_REQUEST");
-        			
-                	returnDocument.append("pathName",received_document.getString("pathName"));
-        			String message = returnDocument.toJson();
-        			return message;
-                } else {
-                	
-                	returnDocument.append("command",received_document.getString("command"));
-                    
-                    returnDocument.append("fileDescriptor",(Document)received_document.get("fileDescriptor"));
-                    returnDocument.append("pathName",received_document.getString("pathName"));
-                    returnDocument.append("position",received_document.getInteger("position"));
-                    returnDocument.append("lenght",received_document.getLong("length"));
-                    String message = returnDocument.toJson();
-        			return message;
-                }
-            
+                returnDocument.append("fileDescriptor",(Document)received_document.get("fileDescriptor"));
+                returnDocument.append("pathName",received_document.getString("pathName"));
+                String message = returnDocument.toJson();
+                return message;
+            }
+            else if(command.equals("FILE_MODIFY_RESPONSE")) {
+                returnDocument.append("command", "FILE_MODIFY_REQUEST");
+
+                returnDocument.append("fileDescriptor",(Document)received_document.get("fileDescriptor"));
+                returnDocument.append("pathName",received_document.getString("pathName"));
+                String message = returnDocument.toJson();
+                return message;
+            } else if(command.equals("FILE_DELETE_RESPONSE")) {
+
+                returnDocument.append("command", "FILE_DELETE_REQUEST");
+                returnDocument.append("fileDescriptor",(Document)received_document.get("fileDescriptor"));
+                returnDocument.append("pathName",received_document.getString("pathName"));
+                String message = returnDocument.toJson();
+                return message;
+            } else if (command.equals("DIRECTORY_CREATE_RESPONSE")) {
+
+                returnDocument.append("command", "DIRECTORY_CREATE_REQUEST");
+
+                returnDocument.append("pathName",received_document.getString("pathName"));
+                String message = returnDocument.toJson();
+                return message;
+            } else if (command.equals("DIRECTORY_DELETE_RESPONSE")) {
+                returnDocument.append("command", "DIRECTORY_DELETE_REQUEST");
+
+                returnDocument.append("pathName",received_document.getString("pathName"));
+                String message = returnDocument.toJson();
+                return message;
+            } else {
+
+                returnDocument.append("command","FILE_BYTES_REQUEST");
+
+                returnDocument.append("fileDescriptor",(Document)received_document.get("fileDescriptor"));
+                returnDocument.append("pathName",received_document.getString("pathName"));
+                returnDocument.append("position",received_document.getLong("position"));
+                returnDocument.append("length",received_document.getLong("length"));
+                String message = returnDocument.toJson();
+                return message;
+            }
+
         }
-    }                 
+    }
 }

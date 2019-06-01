@@ -33,13 +33,13 @@ public class TCPserver extends Thread{
 		this.port = port;
 		this.peer =peer;
 	}
-	
+
 	public void run(){
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
 		try(ServerSocket server = factory.createServerSocket(port)){
 			ip = server.getInetAddress().toString();
 			System.out.println("Waiting for peer connection..");
-			
+
 			// Wait for connections.
 			while(true){
 
@@ -61,14 +61,14 @@ public class TCPserver extends Thread{
 				Thread t = new Thread(() -> serveClient(client));
 				t.start();
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		
+
 	}
-	
+
 	private void serveClient(Socket client){
 		try(Socket clientSocket = client) {
 			//Listen for incoming connections for ever
@@ -108,7 +108,7 @@ public class TCPserver extends Thread{
 						System.out.println("HandShake Request Accepted");
 
 						System.out.println(clientSocket.getInetAddress().toString());
-						HostPort h = new HostPort(clientSocket.getInetAddress().toString().split("/")[1],(int)((Document)received.get("hostPort")).getLong("port"));
+						HostPort h = new HostPort(clientSocket.getInetAddress().toString().split("/")[1],(int)((Document)(received.get("hostPort"))).getLong("port"));
 						System.out.println(h.toDoc().toJson());
 						serverlist.add(h);
 
@@ -149,7 +149,6 @@ public class TCPserver extends Thread{
 			}
 
 		}catch (ClassCastException e){
-			e.printStackTrace();
 			System.out.println("receive a invalid protocol");
 
 		}catch(SocketException e){

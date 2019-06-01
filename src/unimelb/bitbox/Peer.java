@@ -1,6 +1,7 @@
 package unimelb.bitbox;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ public class Peer extends Thread
     static protected ServerMain mainServer;
     private static Logger log = Logger.getLogger(Peer.class.getName());
     protected  Synchronize syn;
-
     public static void main( String[] args ) throws IOException, NumberFormatException, NoSuchAlgorithmException, InterruptedException
     {
         System.setProperty("java.util.logging.SimpleFormatter.format",
@@ -31,6 +31,8 @@ public class Peer extends Thread
     }
 
     private int port =  Integer.parseInt(Configuration.getConfigurationValue("port"));
+    private int udpPort = Integer.parseInt(Configuration.getConfigurationValue("udpPort"));
+    private int clientport = Integer.parseInt(Configuration.getConfigurationValue("clientport"));
     private String [] peerstring = Configuration.getConfigurationValue("peers").split(" ");
     private ArrayList<String> peers = new ArrayList<String>(Arrays.asList(peerstring));
     protected ArrayList<HostPort> peerHosts = new ArrayList<>();
@@ -38,9 +40,9 @@ public class Peer extends Thread
     private String mode = Configuration.getConfigurationValue("mode");
 
     protected ArrayList<TCPclient> clientList = new ArrayList<>();
-    private TCPserver TCPserver;
+    protected TCPserver TCPserver;
     protected UDPclient UDPclient;
-    private UDPserver UDPserver;
+    protected UDPserver UDPserver;
     private int length;
 
     public void run(){
@@ -52,34 +54,33 @@ public class Peer extends Thread
         peers.clear();
         length = peerHosts.size();
 
-        if (mode.equals("TCP")) {
+        if (mode.equals("tcp")) {
             TCPserver = new TCPserver(port, this);
             TCPserver.start();
+            
 
         } else {
-            UDPserver = new UDPserver(port, this);
+            UDPserver = new UDPserver(udpPort, this);
             UDPserver.start();
         }
+        
+        TCPclientServer clientServer = new TCPclientServer(clientport, this);
+        clientServer.start();
 
         while(true){
 
-            if (mode.equals("TCP")) {
-                System.out.println(length+" "+TCPserver.serverlist.size());
+            if (mode.equals("tcp")) {
+                System.out.println("Peers suppose to be online"+length+" Peers Actual Online "+TCPserver.serverlist.size());
                 if (length != TCPserver.serverlist.size()){
-                    System.out.println("peer: size " + peerHosts.size() +"first "+ peerHosts.get(0).host +":"+ peerHosts.get(0).port);
-                    if(TCPserver.serverlist.size()!=0)
-                        System.out.println(TCPserver.serverlist.size()+" "+ TCPserver.serverlist.get(0)+peerHosts.get(0).port);
+//                    System.out.println("peer: size " + peerHosts.size() +"first "+ peerHosts.get(0).host +":"+ peerHosts.get(0).port);
+//                    if(TCPserver.serverlist.size()!=0)
+//                        System.out.println(TCPserver.serverlist.size()+" "+ TCPserver.serverlist.get(0)+peerHosts.get(0).port);
 
                     System.out.println("start a connecting to other peers");
 
-//                    System.out.println(TCPserver.serverlist.toString());
-//                    System.out.println(peerHosts.toString());
 
                     peerHosts.removeAll(TCPserver.serverlist);
                     peerHosts.addAll(TCPserver.serverlist);
-//
-//                    System.out.println(TCPserver.serverlist.toString());
-//                    System.out.println(peerHosts.toString());
 
                     for (HostPort hostport : peerHosts) {
                         if(!peers.contains(hostport.host)) {
@@ -103,9 +104,9 @@ public class Peer extends Thread
 
 
             } else {
-                System.out.println(length+" "+UDPserver.onlinePeers.size());
+                System.out.println("Peers supposed to be online"+length+" Actual Online peers"+UDPserver.onlinePeers.size());
                 if (length != UDPserver.onlinePeers.size()) {
-                    System.out.println("peer: size " + peerHosts.size() +"first "+ peerHosts.get(0).host +":"+ peerHosts.get(0).port);
+//                    System.out.println("peer: size " + peerHosts.size() +"first "+ peerHosts.get(0).host +":"+ peerHosts.get(0).port);
 
                     peerHosts.removeAll(UDPserver.onlinePeers);
                     peerHosts.addAll(UDPserver.onlinePeers);
@@ -140,7 +141,7 @@ public class Peer extends Thread
 
     public  void Broadcast(String message){
 
-        if(mode.equals("TCP")){
+        if(mode.equals("tcp")){
             for(TCPclient t:clientList) {
                 t.sendtoServer(message);
             }
@@ -154,9 +155,8 @@ public class Peer extends Thread
     }
 
     public void clientToServer(String ip,String message){
-        if(mode.equals("TCP")){
+        if(mode.equals("tcp")){
             for(TCPclient t:clientList) {
-                System.out.println(t.ip+""+ip);
                 if(t.ip .equals(ip.replace("localhost",""))) {
                     t.sendtoServer(message);
                 }

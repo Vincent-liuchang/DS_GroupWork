@@ -58,7 +58,7 @@ public class RSATest {
 //                      
 //                  System.out.println(myPrivateKey);
 //                 }
-          myPrivateKey =  DecodeRSA.generatePriByPath("C:/Users/Administrator/Documents/NetBeansProjects/DsGroup2/id_rsa");
+          myPrivateKey =  DecodeRSA.generatePriByPath("./id_rsa");
           
           Scanner s = new Scanner(System.in);
           String aaa = s.nextLine();
@@ -68,13 +68,14 @@ public class RSATest {
 //          out.write(RSAEncrypt.encrypt(aaa, DecodeRSA.convertkey(Configuration.getConfigurationValue("authorized_keys").split(" ")[1]))+ "\n");
 //          out.flush();
 System.out.println("这是加密前"+aaa);
+String AESkey = Encryption.AESkey();
 //String enstr = RSAEncrypt.encrypt(aaa, DecodeRSA.convertkey(Configuration.getConfigurationValue("authorized_keys").split(" ")[1]));
 String enstr = Encryption.RSAencrypt(aaa, DecodeRSA.generatePub(Configuration.getConfigurationValue("authorized_keys").split(" ")[1]));
-String aestr = Encryption.AESencrypt(aaa, "meiyong");
+String aestr = Encryption.AESencrypt(aaa, AESkey);
         System.out.println(aestr);
 //        System.out.println("this is public key  " + DecodeRSA.generatePub(Configuration.getConfigurationValue("authorized_keys").split(" ")[1]));
 String destr = Encryption.RSAdecrypt(enstr, myPrivateKey);
-String daestr = Encryption.AESdecrypt(aestr, "meiyong");
+String daestr = Encryption.AESdecrypt(aestr, AESkey);
         System.out.println("这是解密后RSA" + destr);
         System.out.println("这是解密后AES" + daestr);
 

@@ -5,7 +5,9 @@
  */
 package unimelb.bitbox;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -100,11 +102,16 @@ private static byte[] readBytes(ByteBuffer buffer, AtomicInteger pos){
 }
 
 public static RSAPrivateKey generatePriByPath(String path) throws Exception {
-        String content = new String(
-                Files.readAllBytes(Paths.get(path)));
+    
+        FileReader reader = new FileReader(path);
+        BufferedReader br = new BufferedReader(reader);
+        String content = "";
+        String line;
+        while((line = br.readLine()) != null)
+            content += line;
         content = content.replaceAll("\\n", "").replace("-----BEGIN RSA PRIVATE KEY-----", "")
                 .replace("-----END RSA PRIVATE KEY-----", "");
-        System.out.println("'" + content + "'");
+      
         byte[] bytes = Base64.getDecoder().decode(content);
  
         DerInputStream derReader = new DerInputStream(bytes);

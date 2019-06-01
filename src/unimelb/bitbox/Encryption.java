@@ -27,6 +27,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -67,13 +68,13 @@ public class Encryption {
     
    
 		String outStr = new String(cipher.doFinal(inputByte));
-                System.out.println("结束" + outStr);
+          
 		return outStr;
 	}
     
     public static String AESencrypt(String str, String key ) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
 //                key = "5v8y/B?D(G+KbPeS";
-                key = "1234567890123456";
+      
 		Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
 	
 		Cipher cipher = Cipher.getInstance("AES");
@@ -81,20 +82,33 @@ public class Encryption {
 		cipher.init(Cipher.ENCRYPT_MODE, aesKey);
                 ;
 		String outStr = Base64.getEncoder().encodeToString(cipher.doFinal(str.getBytes("UTF-8")));
-                System.err.println("Encrypted message: "+ outStr);
+            
 		return outStr;
 }
     
     public static String AESdecrypt(String str, String key) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
-                key = "1234567890123456";
+      
     		Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
                 
                byte[] inputByte = Base64.getDecoder().decode(str);
 			Cipher cipher = Cipher.getInstance("AES");
 			cipher.init(Cipher.DECRYPT_MODE, aesKey);
 			String decrypted = new String(cipher.doFinal(inputByte));
-			System.err.println("Decrypted message: "+decrypted);
+		
                         
                         return decrypted;
+    }
+    
+    public static String AESkey() {
+        String str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";//含有字符和数字的字符串
+        Random random = new Random();//随机类初始化
+        StringBuffer sb = new StringBuffer();//StringBuffer类生成，为了拼接字符串
+ 
+        for (int i = 0; i < 16; ++i) {
+            int number = random.nextInt(62);// [0,62)
+ 
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
     }
 }

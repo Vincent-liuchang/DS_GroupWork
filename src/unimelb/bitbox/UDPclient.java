@@ -137,14 +137,17 @@ public class UDPclient extends Thread {
     }
 
     public void resent(){
-        for(DatagramPacket d: packetList){
-            System.out.println(d.getData().toString());
-            this.sendToServer(d.getAddress().getHostName(), new String(d.getData()));
-        }
-        try {
-            Thread.sleep(5*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while(true) {
+            for (DatagramPacket d : packetList) {
+                System.out.println(d.getData().toString());
+                this.sendToServer(d.getAddress().getHostName(), new String(d.getData()));
+                System.out.println();
+            }
+            try {
+                Thread.sleep(5 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

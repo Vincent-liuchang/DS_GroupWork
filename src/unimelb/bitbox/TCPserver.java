@@ -149,7 +149,9 @@ public class TCPserver extends Thread{
 			System.out.println("1 client off line");
 			System.out.println("onlinepeer list need to be update:");
 			System.out.println(Socketlist.toString());
+
 			if(Socketlist.size() != 0) {
+				System.out.println("");
 				for (int i = 0; i< Socketlist.size(); i++) {
 					if (Socketlist.get(i).isClosed()) {
 						HostPort h = new HostPort(Socketlist.get(i).getInetAddress().toString().split("/")[1],Socketlist.get(i).getPort());

@@ -22,7 +22,7 @@ public class TCPclient extends Thread {
 	private int port;
 	protected HostPort hostport;
 	private ArrayList<HostPort> iplist;
-	private Socket socket;
+	protected Socket socket;
 	private Peer peer;
 
 
@@ -58,7 +58,6 @@ public class TCPclient extends Thread {
 
 				if(anbMessage.equals("HandShakeComplete")){
 					System.out.println("HandShake Response Received, the server is: " + ip);
-//						peer.TCPclientlist.add(this);
 				}
 				else if(!anbMessage.equals("ok")) {
 					System.out.println(anbMessage);
@@ -73,7 +72,9 @@ public class TCPclient extends Thread {
 		catch (ConnectException e) {
 			try {
 				System.out.println("this peer's server not online, try in 5 seconds .... this peer is:"+this.ip);
-
+                peer.peerHosts.remove(ip);
+                peer.TCPserver.serverlist.remove(new HostPort(ip,port));
+                peer.peerHosts.remove(new HostPort(ip,port));
 				Thread.sleep(5*1000);
 				run();
 			}

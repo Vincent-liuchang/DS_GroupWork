@@ -46,7 +46,7 @@ public class Client {
                 Socket socket = new Socket(hp.host, hp.port);
                 myPrivateKey =  DecodeRSA.generatePriByPath("/Users/yw/IntelliJProjects/DS_GroupWork/bitboxclient_rsa");
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-	        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
                 
                 Document authorizeRequest = new Document();
                 authorizeRequest.append("command", "AUTH_REQUEST");

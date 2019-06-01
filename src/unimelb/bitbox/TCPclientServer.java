@@ -181,6 +181,7 @@ public class TCPclientServer extends Thread{
                                                     peer.clientList.remove(c);
                                                     peer.peerHosts.remove(c.hostport);
                                                     peer.TCPserver.serverlist.remove(c.hostport);
+                                                    c.socket.close();
                                                     c.interrupt();
                                               }
                                            }

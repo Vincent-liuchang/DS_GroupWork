@@ -71,19 +71,14 @@ public class Peer extends Thread
 
             if (mode.equals("tcp")) {
                 System.out.println("Peers suppose to be online"+length+" Peers Actual Online "+TCPserver.serverlist.size());
-                System.out.println(TCPserver.serverlist);
                 if (length != TCPserver.serverlist.size()){
-                    System.out.println("peer: size " + peerHosts.size() +"first "+ peerHosts.get(0).host +":"+ peerHosts.get(0).port);
                     if(TCPserver.serverlist.size()!=0)
-                        System.out.println(TCPserver.serverlist.size()+" "+ TCPserver.serverlist.get(0)+peerHosts.get(0).port);
 
                     System.out.println("start a connecting to other peers");
 
 
                     peerHosts.removeAll(TCPserver.serverlist);
                     peerHosts.addAll(TCPserver.serverlist);
-                    System.out.println("123213213"+peerHosts.size());
-                    System.out.println(TCPserver.serverlist.size()+"123123123123123");
 
                     for (HostPort hostport : peerHosts) {
                         if(!peers.contains(hostport.host)) {
@@ -109,7 +104,6 @@ public class Peer extends Thread
             } else {
                 System.out.println("Peers supposed to be online"+length+" Actual Online peers"+UDPserver.onlinePeers.size());
                 if (length != UDPserver.onlinePeers.size()) {
-//                    System.out.println("peer: size " + peerHosts.size() +"first "+ peerHosts.get(0).host +":"+ peerHosts.get(0).port);
 
                     peerHosts.removeAll(UDPserver.onlinePeers);
                     peerHosts.addAll(UDPserver.onlinePeers);

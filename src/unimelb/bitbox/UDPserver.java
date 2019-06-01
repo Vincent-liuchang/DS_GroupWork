@@ -42,9 +42,6 @@ public class UDPserver extends Thread{
                 Document received_message = Document.parse(received);
                 String response;
 
-                System.out.println("123"+received);
-                System.out.println(received_message.toJson());
-
                 if(received_message.getString("command").equals("HANDSHAKE_REQUEST")){
                     if(onlinePeers.size() > Integer.parseInt(Configuration.getConfigurationValue("maximumIncommingConnections"))){
                         Document handshake = new Document();
@@ -58,7 +55,7 @@ public class UDPserver extends Thread{
                     }
                     else{
                         System.out.println("HandShake Request Accepted");
-                        HostPort h = new HostPort(request.getAddress().toString().replace("/",""),(int)((Document)received_message.get("hostPort")).getLong("port"));
+                        HostPort h = new HostPort(request.getAddress().toString().replace("/",""),(int)((Document)(received_message.get("hostPort"))).getLong("port"));
                         if(!onlinePeers.contains(h))
                             onlinePeers.add(h);
                         if(!peer.UDPclient.onlinePeers.contains(h)){
@@ -66,18 +63,15 @@ public class UDPserver extends Thread{
                             peer.UDPclient.handShake(h);
                         }
 
-                        System.out.println("server have online peers: "+onlinePeers.size());
                         Document handshake = new Document();
                         handshake.append("command", "HANDSHAKE_RESPONSE");
                         HostPort hostport = new HostPort(Configuration.getConfigurationValue("advertisedName"), port);
                         handshake.append("hostPort", hostport.toDoc());
-                        System.out.println(hostport.toDoc());
                         this.send(handshake.toJson(),host);
                     }
                 }
                 else {
                     response = new Operator().operation(received_message);
-                    System.out.println(response.length());
                     if (response.contains("longgenb1995")) {
                         String re[] = response.split("longgenb1995");
                         for (String i : re) {

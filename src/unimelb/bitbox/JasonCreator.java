@@ -53,7 +53,7 @@ public class JasonCreator {
 
     // FILE_BYTES_REQUEST
     public String fileByteRequest(){
-
+        reply = new Document();
         command = "FILE_BYTES_REQUEST";
         reply.append("command", command);
         reply.append("fileDescriptor",fd);

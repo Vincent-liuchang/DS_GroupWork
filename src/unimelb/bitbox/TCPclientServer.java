@@ -45,9 +45,9 @@ public class TCPclientServer extends Thread{
 			
 			// Wait for connections.
 			while(true){
-                                System.out.println("接受前");
+                            
 				Socket client = server.accept();
-                                System.out.println("接受后");
+                       
                                        
 				// Start a new thread for a connection
 				Thread t = new Thread(() -> serveClient(client));
@@ -122,7 +122,7 @@ public class TCPclientServer extends Thread{
                                     
                                     else{ 
                                         ArrayList<Document> peers = new ArrayList<Document>();
-                                            for (HostPort s : peer.TCPserver.serverlist) {
+                                            for (HostPort s : peer.UDPserver.onlinePeers) {
 						peers.add(s.toDoc());
                                             }
                                             
@@ -135,7 +135,7 @@ public class TCPclientServer extends Thread{
                                     out.flush();
                                    
                                 }else if(rec.get("command").equals("CONNECT_PEER_REQUEST")) {
-                                    System.out.println("lai cnr le");
+
                                     if(Configuration.getConfigurationValue("mode").equals("tcp"))
                                         peer.TCPserver.serverlist.add(new HostPort(rec.getString("host"), (int)rec.getLong("port")));
                                     
@@ -146,23 +146,36 @@ public class TCPclientServer extends Thread{
                                     res.append("host", rec.getString("host"));
                                     res.append("port", (int)rec.getLong("port"));
                                     res.append("status", "true");
-                                    res.append("message", "Trying to connect to peer");
+                                    res.append("message", "Trying to connect to peer(use list_peers to confirm)");                
                                     
                                     Document pl = new Document();
-                                    pl.append("payload",  Encryption.AESencrypt(res.toJson(), AESkey));
-                                    System.out.println("out connect peer response");
+                                    pl.append("payload", Encryption.AESencrypt(res.toJson(), AESkey));
                                     out.write(pl.toJson() + "\n");
                                     out.flush();
                                    
                                 }else if(rec.get("command").equals("DISCONNECT_PEER_REQUEST")) {
-                                    //还没搞好
+                                    
                                     Document res = new Document();
                                     
                                     res.append("command", "DISCONNECT_PEER_RESPONSE");
                                     res.append("host", rec.getString("host"));
                                     res.append("port", (int)rec.getLong("port"));
                                     res.append("status", "true");
-                                    res.append("message", "Trying to connect to peer");
+                                    res.append("message", "Trying to disconnect peer(use list_peers to confirm)");
+                                    
+                                      if(Configuration.getConfigurationValue("mode").equals("tcp")){
+                                          for(TCPclient c: peer.clientList){
+                                              if(c.ip.equals(rec.getString("hosts"))){
+                                                    c.interrupt();
+                                                    peer.clientList.remove(c);
+                                              }
+                                           }
+                                          
+                                      }
+                                    else {
+                                          peer.peerHosts.remove(new HostPort(rec.getString("host"), (int)rec.getLong("port")));
+                                    peer.UDPserver.onlinePeers.remove(new HostPort(rec.getString("host"), (int)rec.getLong("port")));
+                                }
                                     
                                     Document pl = new Document();
                                     pl.append("payload",  Encryption.AESencrypt(res.toJson(), AESkey));

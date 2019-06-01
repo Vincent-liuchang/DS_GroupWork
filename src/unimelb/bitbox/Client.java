@@ -42,9 +42,9 @@ public class Client {
 			//command line arguments
                 String identity = argsBean.getIdentity();
                 HostPort hp = new HostPort(argsBean.getMyServer()); 
-                System.out.println(hp.host + hp.port);
+
                 Socket socket = new Socket(hp.host, hp.port);
-                myPrivateKey =  DecodeRSA.generatePriByPath("./id_rsa");
+                myPrivateKey =  DecodeRSA.generatePriByPath("./bitboxclient_rsa");
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 	        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
                 
@@ -121,13 +121,17 @@ public class Client {
                 
                 if(commandResponse.getString("command").equals("LIST_PEERS_RESPONSE")) {
                     ArrayList<Document> peers = (ArrayList)commandResponse.get("peers");
+                    System.out.println("Connected peers are: ");
+                    
+                    if(peers.isEmpty())
+                        System.out.println("No peer is connected.");
                     
                     for(Document peer : peers) {
                         System.out.println(new HostPort(peer));
                     }
                         
-                }
-                System.out.println(commandResponse.getString("message"));;
+                }else
+                    System.out.println(commandResponse.getString("message"));;
                 }
                 else System.out.println(response.getString("message"));
 

@@ -48,7 +48,8 @@ public class TCPserver extends Thread{
 				if(Socketlist.size() != 0) {
 					for (int i = 0; i< Socketlist.size(); i++) {
 						if (Socketlist.get(i).isClosed()) {
-							Socketlist.remove(i);
+                                                    HostPort h = new HostPort(Socketlist.get(i).getInetAddress().toString().split("/")[1],Socketlist.get(i).getPort());
+                                                    Socketlist.remove(i);
 						}
 					}
 				}

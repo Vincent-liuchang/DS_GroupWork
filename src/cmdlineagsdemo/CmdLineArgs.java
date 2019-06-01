@@ -30,7 +30,7 @@ public class CmdLineArgs {
 	}
         
         public String getPeer() {
-                return peer;
+                return peer.replace("\\","");
         }
         
         public String getIdentity() {
